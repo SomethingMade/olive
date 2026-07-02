@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facilitator Dashboard | LM.S</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF8C00;
+            --primary-hover: #E67E00;
+            --bg-body: #F3F4F6;
+            --bg-surface: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar Sidebar */
+        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; }
+        .sidebar h2 { color: var(--primary); font-size: 24px; font-weight: 700; margin-bottom: 32px; letter-spacing: -0.5px; }
+        .nav-item { padding: 12px 16px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--text-muted); transition: 0.2s; }
+        .nav-item:hover { background: #F9FAFB; color: var(--text-main); }
+        .nav-item.active { background: rgba(255, 140, 0, 0.1); color: var(--primary); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .header { margin-bottom: 32px; }
+        .header h1 { font-size: 28px; font-weight: 600; }
+        
+        /* Card & Form */
+        .card { background: var(--bg-surface); border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 500px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; }
+        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(255,140,0,0.2); }
+        
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        #status-msg { margin-top: 16px; font-size: 14px; padding: 12px; border-radius: 6px; display: none; }
+        .success { background: #D1FAE5; color: #065F46; }
+        .error { background: #FEE2E2; color: #991B1B; }
+
+        /* Data Table */
+        .table-container { margin-top: 40px; background: var(--bg-surface); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px; border-bottom: 1px solid var(--border); }
+        th { background: #F9FAFB; font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; }
+        td { font-size: 15px; }
+        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: #FEF3C7; color: #92400E; }
+        .status-active { background: #D1FAE5; color: #065F46; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2>Lumina LMS</h2>
+        <div class="nav-item">Dashboard Overview</div>
+        <div class="nav-item active">Manage Learners</div>
+        <div class="nav-item">Task Hub</div>
+        <div class="nav-item">Submissions</div>
+    </aside>
+
+    <main class="main-content">
+        <div class="header">
+            <h1>Learner Registration</h1>
+            <p style="color: var(--text-muted); margin-top: 8px;">Pre-register learners so they can access their portal.</p>
+        </div>
+
+        <div class="card">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="learner-name" placeholder="Jane Doe">
+            </div>
+            <div class="form-group">
+                <label>Email Address (Used for Login)</label>
+                <input type="email" id="learner-email" placeholder="jane.doe@example.com">
+            </div>
+            <div class="form-group">
+                <label>ID Number</label>
+                <input type="text" id="learner-id" placeholder="National ID">
+            </div>
+            <div class="form-group">
+                <label>Cohort / Course</label>
+                <select id="learner-cohort">
+                    <option value="IT_Support_2026">IT Support 2026</option>
+                    <option value="Business_Admin_2026">Business Admin 2026</option>
+                </select>
+            </div>
+            <button class="btn-primary" id="register-btn">Whitelist Learner</button>
+            <div id="status-msg"></div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Cohort</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="learner-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        // 1. Firebase Configuration (From your specific file)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQSPwpVbGrdCuOoyitAeWQHIeipj2MgIY",
+            authDomain: "newstart-64c43.firebaseapp.com",
+            databaseURL: "https://newstart-64c43-default-rtdb.firebaseio.com",
+            projectId: "newstart-64c43",
+            storageBucket: "newstart-64c43.firebasestorage.app",
+            messagingSenderId: "941619830061",
+            appId: "1:941619830061:web:de9e0f791eb8f6eacf87a4"
+        };
+
+        // 2. Cloudinary Configuration (For future task uploads)
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/auto/upload";
+        const CLOUDINARY_PRESET = "banter_box";
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // UI Elements
+        const registerBtn = document.getElementById('register-btn');
+        const statusMsg = document.getElementById('status-msg');
+        const tableBody = document.getElementById('learner-table-body');
+
+        function showMessage(msg, isError = false) {
+            statusMsg.textContent = msg;
+            statusMsg.className = isError ? 'error' : 'success';
+            statusMsg.style.display = 'block';
+            setTimeout(() => statusMsg.style.display = 'none', 5000);
+        }
+
+        // 3. Handle Facilitator Adding a Learner (Pre-registration)
+        registerBtn.addEventListener('click', async () => {
+            const name = document.getElementById('learner-name').value.trim();
+            const email = document.getElementById('learner-email').value.trim().toLowerCase();
+            const idNumber = document.getElementById('learner-id').value.trim();
+            const cohort = document.getElementById('learner-cohort').value;
+
+            if (!name || !email || !idNumber) {
+                showMessage("Please fill in all fields.", true);
+                return;
+            }
+
+            registerBtn.disabled = true;
+            registerBtn.textContent = "Registering...";
+
+            try {
+                // Encode email to use as a database key (Firebase RTDB keys can't contain '.')
+                const safeEmail = email.replace(/\./g, ','); 
+                
+                const userRef = ref(database, `whitelisted_learners/${safeEmail}`);
+                
+                await set(userRef, {
+                    name: name,
+                    email: email,
+                    idNumber: idNumber,
+                    cohort: cohort,
+                    status: 'pending', // Waiting for them to sign up
+                    role: 'learner',
+                    addedAt: Date.now()
+                });
+
+                showMessage(`Successfully whitelisted ${email}. They can now sign up.`);
+                
+                // Clear form
+                document.getElementById('learner-name').value = '';
+                document.getElementById('learner-email').value = '';
+                document.getElementById('learner-id').value = '';
+
+            } catch (error) {
+                showMessage("Error: " + error.message, true);
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = "Whitelist Learner";
+            }
+        });
+
+        // 4. Real-time Table Updates to view registered learners
+        onValue(ref(database, 'whitelisted_learners'), (snapshot) => {
+            tableBody.innerHTML = '';
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    const learner = childSnapshot.val();
+                    const tr = document.createElement('tr');
+                    
+                    const statusClass = learner.status === 'active' ? 'status-active' : 'status-pending';
+                    const statusText = learner.status === 'active' ? 'Active' : 'Pending Signup';
+
+                    tr.innerHTML = `
+                        <td><strong>${learner.name}</strong></td>
+                        <td>${learner.email}</td>
+                        <td>${learner.cohort.replace(/_/g, ' ')}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#6B7280;">No learners registered yet.</td></tr>';
+            }
+        });
+    </script>
+</body>
+</html>
