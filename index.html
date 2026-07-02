@@ -16,6 +16,7 @@
             --border: #E5E7EB;
             --success: #10B981;
             --error: #EF4444;
+            --warning: #F59E0B;
             --radius-pill: 50px;
             --radius-card: 20px;
             --shadow-soft: 0 10px 25px rgba(0,0,0,0.05);
@@ -72,7 +73,8 @@
         .sidebar-header { color: var(--primary); font-size: 24px; font-weight: 700; margin-bottom: 32px; letter-spacing: -0.5px; display: flex; justify-content: space-between; align-items: center;}
         .close-sidebar { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
         
-        .nav-item { padding: 14px 20px; margin-bottom: 8px; border-radius: var(--radius-pill); cursor: pointer; font-weight: 500; color: var(--text-muted); transition: 0.2s; }
+        .nav-item { padding: 14px 20px; margin-bottom: 8px; border-radius: var(--radius-pill); cursor: pointer; font-weight: 500; color: var(--text-muted); transition: 0.2s; display: flex; align-items: center; gap: 12px; }
+        .nav-item svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .nav-item:hover { background: #F9FAFB; color: var(--text-main); }
         .nav-item.active { background: rgba(255, 140, 0, 0.1); color: var(--primary); font-weight: 600; }
 
@@ -96,29 +98,45 @@
 
         .grid-two-col { display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start; }
         .card { background: var(--bg-surface); border-radius: var(--radius-card); padding: 32px; border: 1px solid var(--border); box-shadow: var(--shadow-soft); margin-bottom: 24px; }
-        .card h2 { font-size: 20px; margin-bottom: 24px; font-weight: 600; }
+        .card h2 { font-size: 20px; margin-bottom: 24px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
         
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--text-main);}
-        .form-group select, .form-group textarea { width: 100%; padding: 14px 20px; border: 1px solid var(--border); border-radius: 16px; font-size: 15px; outline: none; background: #F9FAFB; transition: 0.2s; }
-        .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(255,140,0,0.15); }
+        .form-group select, .form-group textarea, .form-group input { width: 100%; padding: 14px 20px; border: 1px solid var(--border); border-radius: 16px; font-size: 15px; outline: none; background: #F9FAFB; transition: 0.2s; }
+        .form-group select:focus, .form-group textarea:focus, .form-group input:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(255,140,0,0.15); }
         .file-status { font-size: 13px; color: var(--text-muted); margin-top: 8px; font-style: italic; word-break: break-all; }
 
-        .table-wrapper { width: 100%; overflow-x: auto; background: var(--bg-surface); border-radius: var(--radius-card); border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
+        /* Search Filter */
+        .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .search-box { position: relative; width: 100%; max-width: 300px; }
+        .search-box input { width: 100%; padding: 10px 16px 10px 36px; border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: 14px; }
+        .search-box svg { position: absolute; left: 12px; top: 11px; width: 16px; height: 16px; color: var(--text-muted); }
+
+        .table-wrapper { width: 100%; overflow-x: auto; background: var(--bg-surface); border-radius: var(--radius-card); border: 1px solid var(--border); box-shadow: var(--shadow-soft); padding: 24px; }
         table { width: 100%; min-width: 600px; border-collapse: collapse; text-align: left; }
-        th, td { padding: 20px 24px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-        th { background: #F9FAFB; font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; white-space: nowrap; letter-spacing: 0.5px;}
+        th, td { padding: 16px 20px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        th { background: #F9FAFB; font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; white-space: nowrap; letter-spacing: 0.5px; border-radius: 8px;}
         td { font-size: 15px; color: #374151; }
+        tr:last-child td { border-bottom: none; }
         
         .badge { padding: 6px 14px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; display: inline-block; white-space: nowrap; }
         .badge-pending { background: #FEF3C7; color: #92400E; }
         .badge-active { background: #D1FAE5; color: #065F46; }
+        .badge-suspended { background: #FEE2E2; color: #B91C1C; }
         .badge-submitted { background: #DBEAFE; color: #1E40AF; }
         .badge-graded { background: #E0F2FE; color: #0369A1; }
 
         .grade-input-box { display: flex; gap: 8px; align-items: center; }
         .grade-input-box input { width: 80px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-pill); outline: none; text-align: center;}
         .grade-input-box input:focus { border-color: var(--primary); }
+
+        /* Action Buttons */
+        .action-btns { display: flex; gap: 8px; }
+        .btn-action { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 4px; transition: 0.2s;}
+        .btn-warning { background: #FEF3C7; color: #D97706; }
+        .btn-warning:hover { background: #FDE68A; }
+        .btn-danger { background: #FEE2E2; color: #DC2626; }
+        .btn-danger:hover { background: #FECACA; }
 
         .toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; border-radius: var(--radius-pill); color: white; font-weight: 500; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; z-index: 10000; }
 
@@ -169,23 +187,46 @@
     <div id="dashboard-screen">
         <div class="mobile-header">
             <h2>Lumina LMS</h2>
-            <button class="menu-toggle" id="menu-open">☰</button>
+            <button class="menu-toggle" id="menu-open">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
         </div>
 
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <span>Lumina LMS</span>
-                <button class="close-sidebar" id="menu-close">✕</button>
+                <button class="close-sidebar" id="menu-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
             
-            <div class="nav-item active" data-target="overview">Dashboard Overview</div>
-            <div class="nav-item" data-target="learners">Manage Learners</div>
-            <div class="nav-item" data-target="tasks">Task Hub</div>
-            <div class="nav-item" data-target="submissions">Submissions</div>
+            <div class="nav-item active" data-target="overview">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                Dashboard Overview
+            </div>
+            <div class="nav-item" data-target="learners">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Manage Learners
+            </div>
+            <div class="nav-item" data-target="tasks">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Task Hub
+            </div>
+            <div class="nav-item" data-target="submissions">
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Submissions
+            </div>
+            <div class="nav-item" data-target="notices">
+                <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                Communications
+            </div>
 
             <div class="user-profile-widget">
                 <div class="user-email" id="display-user-email">Loading user...</div>
-                <button class="btn-pill btn-outline" id="btn-logout" style="width: 100%; font-size: 13px; padding: 10px;">Sign Out</button>
+                <button class="btn-pill btn-outline" id="btn-logout" style="width: 100%; font-size: 13px; padding: 10px;">
+                    <svg style="width:16px; height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Sign Out
+                </button>
             </div>
         </aside>
 
@@ -206,11 +247,14 @@
             <section id="panel-learners" class="tab-panel">
                 <div class="header">
                     <h1>Learner Management</h1>
-                    <p>Pre-verify and whitelist learner records to permit portal access.</p>
+                    <p>Whitelist, suspend, or remove learner access to the portal.</p>
                 </div>
                 <div class="grid-two-col">
                     <div class="card">
-                        <h2>Whitelist Learner</h2>
+                        <h2>
+                            <svg style="width:20px;" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                            Whitelist Learner
+                        </h2>
                         <div class="form-group">
                             <label>Full Name</label>
                             <input type="text" id="learner-name" class="pill-input" placeholder="Jane Doe">
@@ -234,12 +278,19 @@
                     </div>
                     
                     <div class="table-wrapper">
+                        <div class="table-controls">
+                            <div class="search-box">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" id="search-learners" placeholder="Search learners by name or email...">
+                            </div>
+                        </div>
                         <table>
                             <thead>
                                 <tr>
                                     <th>Learner Profile</th>
                                     <th>Cohort</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="table-learners-body"></tbody>
@@ -255,7 +306,10 @@
                 </div>
                 <div class="grid-two-col">
                     <div class="card">
-                        <h2>Publish New Task</h2>
+                        <h2>
+                            <svg style="width:20px;" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                            Publish New Task
+                        </h2>
                         <div class="form-group">
                             <label>Task Title</label>
                             <input type="text" id="task-title" class="pill-input" placeholder="e.g., Formative Assessment 1">
@@ -311,13 +365,50 @@
                     </table>
                 </div>
             </section>
+
+            <section id="panel-notices" class="tab-panel">
+                <div class="header">
+                    <h1>Communications</h1>
+                    <p>Broadcast notices and announcements to all whitelisted learners.</p>
+                </div>
+                <div class="grid-two-col">
+                    <div class="card">
+                        <h2>
+                            <svg style="width:20px;" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            Send Notice
+                        </h2>
+                        <div class="form-group">
+                            <label>Notice Subject</label>
+                            <input type="text" id="notice-title" class="pill-input" placeholder="e.g., Important Cohort Update">
+                        </div>
+                        <div class="form-group">
+                            <label>Message Content</label>
+                            <textarea id="notice-msg" rows="5" placeholder="Enter message details..."></textarea>
+                        </div>
+                        <button class="btn-pill btn-primary" id="btn-send-notice">Broadcast to Learners</button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Recent Announcements</th>
+                                    <th>Date Sent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-notices-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBQSPwpVbGrdCuOoyitAeWQHIeipj2MgIY",
@@ -361,21 +452,19 @@
         document.getElementById('menu-open').addEventListener('click', () => document.getElementById('sidebar').classList.add('open'));
         document.getElementById('menu-close').addEventListener('click', () => document.getElementById('sidebar').classList.remove('open'));
 
+        // Client-side table search
+        document.getElementById('search-learners').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#table-learners-body tr');
+            rows.forEach(row => {
+                let text = row.cells[0].textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+
         /* ── AUTHENTICATION LOGIC ── */
         let isLoginMode = true;
 
-        document.getElementById('toggle-auth-btn').addEventListener('click', () => {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-subtitle').textContent = isLoginMode ? "Sign in to your Facilitator Dashboard" : "Create a new Facilitator account";
-            document.getElementById('btn-email-auth').textContent = isLoginMode ? "Sign In" : "Create Account";
-            document.getElementById('toggle-auth-text').innerHTML = isLoginMode ? 'Need an account? <span id="toggle-auth-btn">Sign up</span>' : 'Already have an account? <span id="toggle-auth-btn">Sign in</span>';
-            
-            // Reattach event listener to the newly generated span
-            document.getElementById('toggle-auth-btn').addEventListener('click', document.getElementById('toggle-auth-btn').onclick);
-            location.reload(); // Simple reload to refresh listeners for the toggle (cleanest approach for SPA toggle without complex delegation)
-        });
-
-        // Override toggle reload approach with proper delegation
         document.getElementById('auth-screen').addEventListener('click', (e) => {
             if(e.target && e.target.id === 'toggle-auth-btn') {
                 isLoginMode = !isLoginMode;
@@ -409,7 +498,6 @@
 
         document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-        // State Observer
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('auth-screen').style.display = 'none';
@@ -427,6 +515,7 @@
         function getSafeKey(email) { return email.toLowerCase().replace(/\./g, ","); }
 
         function initAnalytics() {
+            // Learners Observer
             onValue(ref(database, "whitelisted_learners"), (snap) => {
                 let total = 0, active = 0;
                 const tbody = document.getElementById("table-learners-body");
@@ -435,7 +524,7 @@
                 if(!snap.exists()) {
                     document.getElementById("metric-learners").textContent = 0;
                     document.getElementById("metric-active").textContent = 0;
-                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No records found.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No records found.</td></tr>`;
                     return;
                 }
 
@@ -444,19 +533,39 @@
                     total++;
                     if(data.status === "active") active++;
                     
-                    const badgeClass = data.status === "active" ? "badge-active" : "badge-pending";
+                    let badgeClass = "badge-pending";
+                    let badgeText = "Pending Sign-Up";
+                    if(data.status === "active") { badgeClass = "badge-active"; badgeText = "Active"; }
+                    if(data.status === "suspended") { badgeClass = "badge-suspended"; badgeText = "Suspended"; }
+
+                    const suspendActionText = data.status === "suspended" ? "Unsuspend" : "Suspend";
+
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${data.name}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.email}</span></td>
                             <td>${data.cohort.replace(/_/g, " ")}</td>
-                            <td><span class="badge ${badgeClass}">${data.status === "active" ? "Active" : "Pending Sign-Up"}</span></td>
+                            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-action btn-warning" onclick="window.toggleSuspend('${data.email}', '${data.status}')">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                        ${suspendActionText}
+                                    </button>
+                                    <button class="btn-action btn-danger" onclick="window.removeLearner('${data.email}')">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     `;
                 });
                 document.getElementById("metric-learners").textContent = total;
                 document.getElementById("metric-active").textContent = active;
+                // re-trigger search to filter new DOM
+                document.getElementById('search-learners').dispatchEvent(new Event('keyup'));
             });
 
+            // Tasks Observer
             onValue(ref(database, "tasks"), (snap) => {
                 document.getElementById("metric-tasks").textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
                 const tbody = document.getElementById("table-tasks-body");
@@ -476,6 +585,7 @@
                 });
             });
 
+            // Submissions Observer
             onValue(ref(database, "submissions"), (snap) => {
                 let pendingCount = 0;
                 const tbody = document.getElementById("table-submissions-body");
@@ -510,9 +620,29 @@
                 });
                 document.getElementById("metric-submissions").textContent = pendingCount;
             });
+
+            // Notices Observer
+            onValue(ref(database, "notices"), (snap) => {
+                const tbody = document.getElementById("table-notices-body");
+                tbody.innerHTML = "";
+                if(!snap.exists()) return tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color: var(--text-muted);">No notices broadcasted yet.</td></tr>`;
+                
+                // Reverse array to show newest first
+                const notices = [];
+                snap.forEach(child => { notices.push(child.val()); });
+                notices.reverse().forEach(data => {
+                    const dateObj = new Date(data.timestamp);
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.message.substring(0, 50)}...</span></td>
+                            <td>${dateObj.toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+            });
         }
 
-        // Dashboard Actions
+        // Whitelist Actions
         document.getElementById("btn-whitelist").addEventListener("click", async () => {
             const name = document.getElementById("learner-name").value.trim();
             const email = document.getElementById("learner-email").value.trim();
@@ -531,6 +661,25 @@
             finally { document.getElementById("btn-whitelist").disabled = false; }
         });
 
+        // Toggle Suspend Action
+        window.toggleSuspend = async function(email, currentStatus) {
+            const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+            try {
+                await update(ref(database, `whitelisted_learners/${getSafeKey(email)}`), { status: newStatus });
+                notify(`Learner status changed to ${newStatus}.`);
+            } catch(err) { notify("Error updating status.", "error"); }
+        }
+
+        // Remove Learner Action
+        window.removeLearner = async function(email) {
+            if(!confirm(`Are you sure you want to permanently remove access for ${email}?`)) return;
+            try {
+                await remove(ref(database, `whitelisted_learners/${getSafeKey(email)}`));
+                notify("Learner removed successfully.");
+            } catch(err) { notify("Error removing learner.", "error"); }
+        }
+
+        // File Uploading
         let uploadedFileUrl = "", uploadedFileName = "";
         document.getElementById("task-file-input").addEventListener("change", async (e) => {
             const file = e.target.files[0];
@@ -558,6 +707,7 @@
             }
         });
 
+        // Publish Task Action
         document.getElementById("btn-create-task").addEventListener("click", async () => {
             const title = document.getElementById("task-title").value.trim();
             const description = document.getElementById("task-desc").value.trim();
@@ -579,6 +729,26 @@
             finally { document.getElementById("btn-create-task").disabled = false; }
         });
 
+        // Send Notice Action
+        document.getElementById("btn-send-notice").addEventListener("click", async () => {
+            const title = document.getElementById("notice-title").value.trim();
+            const message = document.getElementById("notice-msg").value.trim();
+
+            if (!title || !message) return notify("Please enter subject and message.", "error");
+
+            document.getElementById("btn-send-notice").disabled = true;
+            try {
+                const newNoticeRef = push(ref(database, "notices"));
+                await set(newNoticeRef, { title, message, facilitatorUid: auth.currentUser.uid, timestamp: Date.now() });
+                notify("Notice broadcasted to all learners.");
+                
+                document.getElementById("notice-title").value = "";
+                document.getElementById("notice-msg").value = "";
+            } catch (err) { notify("Database Error.", "error"); } 
+            finally { document.getElementById("btn-send-notice").disabled = false; }
+        });
+
+        // Submit Grade Action
         window.submitAssessment = async function(submissionId) {
             const inputMark = document.getElementById(`input-mark-${submissionId}`).value;
             if(!inputMark || inputMark < 0 || inputMark > 100) return notify("Submit a valid mark (0-100).", "error");
