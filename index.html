@@ -3,122 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facilitator Dashboard | LM.S</title>
+    <title>Lumina LMS - Facilitator Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #FF8C00;
             --primary-hover: #E67E00;
-            --bg-body: #F3F4F6;
+            --bg-body: #F4F6F9;
             --bg-surface: #FFFFFF;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --text-main: #1F2937;
+            --text-muted: #4B5563;
             --border: #E5E7EB;
+            --success: #10B981;
+            --warning: #F59E0B;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        
         body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar Sidebar */
+        /* Sidebar Navigation */
         .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; }
         .sidebar h2 { color: var(--primary); font-size: 24px; font-weight: 700; margin-bottom: 32px; letter-spacing: -0.5px; }
         .nav-item { padding: 12px 16px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--text-muted); transition: 0.2s; }
         .nav-item:hover { background: #F9FAFB; color: var(--text-main); }
-        .nav-item.active { background: rgba(255, 140, 0, 0.1); color: var(--primary); }
+        .nav-item.active { background: rgba(255, 140, 0, 0.1); color: var(--primary); font-weight: 600; }
 
-        /* Main Content */
+        /* Layout Structure */
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
         .header { margin-bottom: 32px; }
-        .header h1 { font-size: 28px; font-weight: 600; }
+        .header h1 { font-size: 28px; font-weight: 700; color: #111827; }
+        .header p { color: var(--text-muted); margin-top: 6px; font-size: 15px; }
         
-        /* Card & Form */
-        .card { background: var(--bg-surface); border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 500px; }
+        /* Metric Overview Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .stat-card { background: var(--bg-surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-card h3 { font-size: 14px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .stat-card p { font-size: 32px; font-weight: 700; color: var(--text-main); }
+
+        /* UI Containers & Forms */
+        .grid-two-col { display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start; }
+        .card { background: var(--bg-surface); border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 24px; }
+        .card h2 { font-size: 18px; margin-bottom: 20px; font-weight: 600; }
+        
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; }
-        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; }
-        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(255,140,0,0.2); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; background: #FFF; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(255,140,0,0.15); }
         
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; }
+        /* Action Elements */
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center; text-decoration: none; }
         .btn-primary:hover { background: var(--primary-hover); }
-        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .file-status { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-style: italic; }
 
-        #status-msg { margin-top: 16px; font-size: 14px; padding: 12px; border-radius: 6px; display: none; }
-        .success { background: #D1FAE5; color: #065F46; }
-        .error { background: #FEE2E2; color: #991B1B; }
-
-        /* Data Table */
-        .table-container { margin-top: 40px; background: var(--bg-surface); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        /* Data Displays */
+        .table-container { background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 16px; border-bottom: 1px solid var(--border); }
+        th, td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
         th { background: #F9FAFB; font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; }
-        td { font-size: 15px; }
-        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; }
-        .status-pending { background: #FEF3C7; color: #92400E; }
-        .status-active { background: #D1FAE5; color: #065F46; }
+        td { font-size: 15px; color: #374151; }
+        
+        /* Status Badges */
+        .badge { padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .badge-pending { background: #FEF3C7; color: #92400E; }
+        .badge-active { background: #D1FAE5; color: #065F46; }
+        .badge-submitted { background: #DBEAFE; color: #1E40AF; }
+        .badge-graded { background: #E0F2FE; color: #0369A1; }
+
+        /* Grading Action UI */
+        .grade-input-box { display: flex; gap: 8px; align-items: center; }
+        .grade-input-box input { width: 80px; padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
+        .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 4px; border: none; background: #E5E7EB; cursor: pointer; font-weight: 500; }
+        .btn-sm-save { background: var(--primary); color: white; }
+
+        /* Notifications */
+        .toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 1000; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
         <h2>Lumina LMS</h2>
-        <div class="nav-item">Dashboard Overview</div>
-        <div class="nav-item active">Manage Learners</div>
-        <div class="nav-item">Task Hub</div>
-        <div class="nav-item">Submissions</div>
+        <div class="nav-item active" data-target="overview">Dashboard Overview</div>
+        <div class="nav-item" data-target="learners">Manage Learners</div>
+        <div class="nav-item" data-target="tasks">Task Hub</div>
+        <div class="nav-item" data-target="submissions">Submissions</div>
     </aside>
 
     <main class="main-content">
-        <div class="header">
-            <h1>Learner Registration</h1>
-            <p style="color: var(--text-muted); margin-top: 8px;">Pre-register learners so they can access their portal.</p>
-        </div>
+        
+        <div id="toast-notification" class="toast"></div>
 
-        <div class="card">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="learner-name" placeholder="Jane Doe">
+        <section id="panel-overview" class="tab-panel active">
+            <div class="header">
+                <h1>Dashboard Overview</h1>
+                <p>Real-time metrics and program metrics footprint.</p>
             </div>
-            <div class="form-group">
-                <label>Email Address (Used for Login)</label>
-                <input type="email" id="learner-email" placeholder="jane.doe@example.com">
+            <div class="stats-grid">
+                <div class="stat-card"><h3>Total Learners</h3><p id="metric-learners">0</p></div>
+                <div class="stat-card"><h3>Active Portals</h3><p id="metric-active">0</p></div>
+                <div class="stat-card"><h3>Tasks Issued</h3><p id="metric-tasks">0</p></div>
+                <div class="stat-card"><h3>Submissions Pending</h3><p id="metric-submissions">0</p></div>
             </div>
-            <div class="form-group">
-                <label>ID Number</label>
-                <input type="text" id="learner-id" placeholder="National ID">
-            </div>
-            <div class="form-group">
-                <label>Cohort / Course</label>
-                <select id="learner-cohort">
-                    <option value="IT_Support_2026">IT Support 2026</option>
-                    <option value="Business_Admin_2026">Business Admin 2026</option>
-                </select>
-            </div>
-            <button class="btn-primary" id="register-btn">Whitelist Learner</button>
-            <div id="status-msg"></div>
-        </div>
+        </section>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Cohort</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="learner-table-body">
-                    </tbody>
-            </table>
-        </div>
+        <section id="panel-learners" class="tab-panel">
+            <div class="header">
+                <h1>Learner Management</h1>
+                <p>Pre-verify and whitelist learner records to permit portal access registration.</p>
+            </div>
+            <div class="grid-two-col">
+                <div class="card">
+                    <h2>Whitelist Registration Form</h2>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="learner-name" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="learner-email" placeholder="johndoe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>National ID / Passport</label>
+                        <input type="text" id="learner-id" placeholder="Identification Number">
+                    </div>
+                    <div class="form-group">
+                        <label>Cohort Assignment</label>
+                        <select id="learner-cohort">
+                            <option value="IT_Systems_Development">Systems Development NQF 5</option>
+                            <option value="Business_Administration">Business Administration NQF 4</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="btn-whitelist">Whitelist Learner</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Learner Profile</th>
+                                <th>Cohort</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-learners-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="panel-tasks" class="tab-panel">
+            <div class="header">
+                <h1>Task Hub</h1>
+                <p>Create tasks, briefs, and Portfolios of Evidence (PoE) documents via Cloudinary storage.</p>
+            </div>
+            <div class="grid-two-col">
+                <div class="card">
+                    <h2>Publish New Assessment Task</h2>
+                    <div class="form-group">
+                        <label>Task Title</label>
+                        <input type="text" id="task-title" placeholder="e.g., Formative Assessment 1">
+                    </div>
+                    <div class="form-group">
+                        <label>Description / Instructions</label>
+                        <textarea id="task-desc" rows="4" placeholder="Enter task deliverables..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" id="task-duedate">
+                    </div>
+                    <div class="form-group">
+                        <label>Task Resource File Attachment</label>
+                        <input type="file" id="task-file-input">
+                        <div id="file-upload-status" class="file-status">No resource file uploaded yet.</div>
+                    </div>
+                    <button class="btn-primary" id="btn-create-task">Publish Task to Portals</button>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task Details</th>
+                                <th>Due Date</th>
+                                <th>Resource Document</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-tasks-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="panel-submissions" class="tab-panel">
+            <div class="header">
+                <h1>Learner Submissions</h1>
+                <p>Review uploaded evidence portfolios, grade submissions, and give assessment outcomes.</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Learner</th>
+                            <th>Task Reference</th>
+                            <th>Submitted File</th>
+                            <th>Mark/Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-submissions-body"></tbody>
+                </table>
+            </div>
+        </section>
+
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // 1. Firebase Configuration (From your specific file)
+        // Firebase Configuration Matching Your Infrastructure
         const firebaseConfig = {
             apiKey: "AIzaSyBQSPwpVbGrdCuOoyitAeWQHIeipj2MgIY",
             authDomain: "newstart-64c43.firebaseapp.com",
@@ -129,95 +236,259 @@
             appId: "1:941619830061:web:de9e0f791eb8f6eacf87a4"
         };
 
-        // 2. Cloudinary Configuration (For future task uploads)
+        // Cloudinary Pipeline Configuration
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/auto/upload";
         const CLOUDINARY_PRESET = "banter_box";
 
-        // Initialize Firebase
+        // Initialize Native Frameworks
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // UI Elements
-        const registerBtn = document.getElementById('register-btn');
-        const statusMsg = document.getElementById('status-msg');
-        const tableBody = document.getElementById('learner-table-body');
+        // Global State Variables
+        let uploadedFileUrl = "";
+        let uploadedFileName = "";
 
-        function showMessage(msg, isError = false) {
-            statusMsg.textContent = msg;
-            statusMsg.className = isError ? 'error' : 'success';
-            statusMsg.style.display = 'block';
-            setTimeout(() => statusMsg.style.display = 'none', 5000);
+        /* ── SYSTEM UI NOTIFICATIONS ── */
+        function notify(message, type = "success") {
+            const toast = document.getElementById("toast-notification");
+            toast.textContent = message;
+            toast.style.backgroundColor = type === "success" ? "var(--success)" : "#EF4444";
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 4000);
         }
 
-        // 3. Handle Facilitator Adding a Learner (Pre-registration)
-        registerBtn.addEventListener('click', async () => {
-            const name = document.getElementById('learner-name').value.trim();
-            const email = document.getElementById('learner-email').value.trim().toLowerCase();
-            const idNumber = document.getElementById('learner-id').value.trim();
-            const cohort = document.getElementById('learner-cohort').value;
+        /* ── SPA ROUTING ARCHITECTURE ── */
+        document.querySelectorAll(".nav-item").forEach(item => {
+            item.addEventListener("click", () => {
+                document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
+                document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+                
+                item.classList.add("active");
+                const targetPanel = document.getElementById(`panel-${item.dataset.target}`);
+                if (targetPanel) targetPanel.classList.add("active");
+            });
+        });
 
-            if (!name || !email || !idNumber) {
-                showMessage("Please fill in all fields.", true);
+        /* ── ENCODE SECURE KEYS FOR REALTIME DATABASE ── */
+        function getSafeKey(email) {
+            return email.toLowerCase().replace(/\./g, ",");
+        }
+
+        /* ── TAB 1: REALTIME CORE ANALYTICS ENGINE ── */
+        function initAnalytics() {
+            onValue(ref(database, "whitelisted_learners"), (snap) => {
+                let total = 0, active = 0;
+                snap.forEach(child => {
+                    total++;
+                    if(child.val().status === "active") active++;
+                });
+                document.getElementById("metric-learners").textContent = total;
+                document.getElementById("metric-active").textContent = active;
+            });
+
+            onValue(ref(database, "tasks"), (snap) => {
+                document.getElementById("metric-tasks").textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+            });
+
+            onValue(ref(database, "submissions"), (snap) => {
+                let pendingCount = 0;
+                snap.forEach(child => {
+                    if(child.val().status === "submitted") pendingCount++;
+                });
+                document.getElementById("metric-submissions").textContent = pendingCount;
+            });
+        }
+
+        /* ── TAB 2: LEARNER PRE-VERIFICATION MANAGEMENT ── */
+        document.getElementById("btn-whitelist").addEventListener("click", async () => {
+            const name = document.getElementById("learner-name").value.trim();
+            const email = document.getElementById("learner-email").value.trim();
+            const idNo = document.getElementById("learner-id").value.trim();
+            const cohort = document.getElementById("learner-cohort").value;
+            const btn = document.getElementById("btn-whitelist");
+
+            if (!name || !email || !idNo) {
+                notify("All verification fields are mandatory.", "error");
                 return;
             }
 
-            registerBtn.disabled = true;
-            registerBtn.textContent = "Registering...";
+            btn.disabled = true;
+            try {
+                const safeEmail = getSafeKey(email);
+                await set(ref(database, `whitelisted_learners/${safeEmail}`), {
+                    name, email: email.toLowerCase(), idNumber: idNo, cohort, status: "pending", role: "learner", initializedAt: Date.now()
+                });
+                notify(`Whitelisted: ${email.toLowerCase()}`);
+                document.getElementById("learner-name").value = "";
+                document.getElementById("learner-email").value = "";
+                document.getElementById("learner-id").value = "";
+            } catch (err) {
+                notify(err.message, "error");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // Sync Learner Tables Live
+        onValue(ref(database, "whitelisted_learners"), (snap) => {
+            const tbody = document.getElementById("table-learners-body");
+            tbody.innerHTML = "";
+            if(!snap.exists()) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No whitelisted records found.</td></tr>`;
+                return;
+            }
+            snap.forEach(child => {
+                const data = child.val();
+                const badgeClass = data.status === "active" ? "badge-active" : "badge-pending";
+                const badgeLabel = data.status === "active" ? "Active" : "Pending Sign-Up";
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><strong>${data.name}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.email}</span></td>
+                    <td>${data.cohort.replace(/_/g, " ")}</td>
+                    <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+
+        /* ── TAB 3: CLOUDINARY FILE UPLOAD MANAGEMENT AND TASK HUB ── */
+        document.getElementById("task-file-input").addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            const statusLabel = document.getElementById("file-upload-status");
+            if (!file) return;
+
+            statusLabel.textContent = "Uploading attachment to Cloudinary network...";
+            statusLabel.style.color = "var(--warning)";
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", CLOUDINARY_PRESET);
 
             try {
-                // Encode email to use as a database key (Firebase RTDB keys can't contain '.')
-                const safeEmail = email.replace(/\./g, ','); 
+                const response = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+                if (!response.ok) throw new Error("Cloudinary pipeline transmission failure.");
                 
-                const userRef = ref(database, `whitelisted_learners/${safeEmail}`);
-                
-                await set(userRef, {
-                    name: name,
-                    email: email,
-                    idNumber: idNumber,
-                    cohort: cohort,
-                    status: 'pending', // Waiting for them to sign up
-                    role: 'learner',
-                    addedAt: Date.now()
+                const result = await response.json();
+                uploadedFileUrl = result.secure_url;
+                uploadedFileName = file.name;
+                statusLabel.textContent = `Attached: ${file.name}`;
+                statusLabel.style.color = "var(--success)";
+                notify("Document optimized and attached successfully.");
+            } catch (err) {
+                statusLabel.textContent = "Upload failed. Verify Cloudinary network preset settings.";
+                statusLabel.style.color = "#EF4444";
+                notify(err.message, "error");
+            }
+        });
+
+        document.getElementById("btn-create-task").addEventListener("click", async () => {
+            const title = document.getElementById("task-title").value.trim();
+            const description = document.getElementById("task-desc").value.trim();
+            const dueDate = document.getElementById("task-duedate").value;
+            const btn = document.getElementById("btn-create-task");
+
+            if (!title || !description || !dueDate) {
+                notify("Please satisfy all programmatic task requirements.", "error");
+                return;
+            }
+
+            btn.disabled = true;
+            try {
+                const taskRef = ref(database, "tasks");
+                const newTaskRef = push(taskRef);
+                await set(newTaskRef, {
+                    id: newTaskRef.key, title, description, dueDate,
+                    fileUrl: uploadedFileUrl, fileName: uploadedFileName, timestamp: Date.now()
                 });
 
-                showMessage(`Successfully whitelisted ${email}. They can now sign up.`);
-                
-                // Clear form
-                document.getElementById('learner-name').value = '';
-                document.getElementById('learner-email').value = '';
-                document.getElementById('learner-id').value = '';
-
-            } catch (error) {
-                showMessage("Error: " + error.message, true);
+                notify("Task deployment compiled out to learner portals.");
+                document.getElementById("task-title").value = "";
+                document.getElementById("task-desc").value = "";
+                document.getElementById("task-duedate").value = "";
+                document.getElementById("task-file-input").value = "";
+                document.getElementById("file-upload-status").textContent = "No resource file uploaded yet.";
+                document.getElementById("file-upload-status").style.color = "var(--text-muted)";
+                uploadedFileUrl = ""; uploadedFileName = "";
+            } catch (err) {
+                notify(err.message, "error");
             } finally {
-                registerBtn.disabled = false;
-                registerBtn.textContent = "Whitelist Learner";
+                btn.disabled = false;
             }
         });
 
-        // 4. Real-time Table Updates to view registered learners
-        onValue(ref(database, 'whitelisted_learners'), (snapshot) => {
-            tableBody.innerHTML = '';
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    const learner = childSnapshot.val();
-                    const tr = document.createElement('tr');
-                    
-                    const statusClass = learner.status === 'active' ? 'status-active' : 'status-pending';
-                    const statusText = learner.status === 'active' ? 'Active' : 'Pending Signup';
+        // Sync Task Hub Tables Live
+        onValue(ref(database, "tasks"), (snap) => {
+            const tbody = document.getElementById("table-tasks-body");
+            tbody.innerHTML = "";
+            if(!snap.exists()) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No tasks deployed yet.</td></tr>`;
+                return;
+            }
+            snap.forEach(child => {
+                const data = child.val();
+                const fileLink = data.fileUrl ? `<a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:500;">Download Brief</a>` : '<span style="color:var(--text-muted);">None</span>';
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.description.substring(0, 50)}...</span></td>
+                    <td>${data.dueDate}</td>
+                    <td>${fileLink}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
 
-                    tr.innerHTML = `
-                        <td><strong>${learner.name}</strong></td>
-                        <td>${learner.email}</td>
-                        <td>${learner.cohort.replace(/_/g, ' ')}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    `;
-                    tableBody.appendChild(tr);
+        /* ── TAB 4: PORTFOLIO SUBMISSIONS & LIVE EVALUATION MATRIX ── */
+        onValue(ref(database, "submissions"), (snap) => {
+            const tbody = document.getElementById("table-submissions-body");
+            tbody.innerHTML = "";
+            if(!snap.exists()) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No assessment submissions received yet.</td></tr>`;
+                return;
+            }
+            snap.forEach(child => {
+                const submissionId = child.key;
+                const data = child.val();
+                const badgeClass = data.status === "graded" ? "badge-graded" : "badge-submitted";
+                const displayGrade = data.grade ? `${data.grade}%` : "Not Evaluated";
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><strong>${data.learnerName || 'Learner'}</strong><br><span style="font-size:11px;color:var(--text-muted);">${data.learnerEmail}</span></td>
+                    <td>${data.taskTitle || 'Assessment Task'}</td>
+                    <td><a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:600;">View File</a></td>
+                    <td><span class="badge ${badgeClass}">${displayGrade} (${data.status.toUpperCase()})</span></td>
+                    <td>
+                        <div class="grade-input-box">
+                            <input type="number" id="input-mark-${submissionId}" min="0" max="100" placeholder="Mark" value="${data.grade || ''}">
+                            <button class="btn-sm btn-sm-save" onclick="window.submitAssessment('${submissionId}')">Save</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+
+        // Expose Assessment Grading callback cleanly to standard window global context
+        window.submitAssessment = async function(submissionId) {
+            const inputMark = document.getElementById(`input-mark-${submissionId}`).value;
+            if(!inputMark || inputMark < 0 || inputMark > 100) {
+                alert("Please submit a legitimate mark validation range (0-100).");
+                return;
+            }
+            try {
+                await update(ref(database, `submissions/${submissionId}`), {
+                    grade: parseInt(inputMark),
+                    status: "graded",
+                    evaluatedAt: Date.now()
                 });
-            } else {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#6B7280;">No learners registered yet.</td></tr>';
+                alert("Assessment evaluations saved down dynamically.");
+            } catch(err) {
+                alert("Database transactional validation failure: " + err.message);
             }
-        });
+        };
+
+        // Initialize Core Metrics System Startup
+        initAnalytics();
     </script>
 </body>
 </html>
