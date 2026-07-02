@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina LMS. - Facilitator Portal</title>
+    <title>Lumina LMS - Facilitator Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,23 +21,32 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
+        /* Mobile/Tablet Header (Hidden on Desktop) */
+        .mobile-header { display: none; background: var(--bg-surface); padding: 16px 24px; border-bottom: 1px solid var(--border); justify-content: space-between; align-items: center; z-index: 50; }
+        .mobile-header h2 { color: var(--primary); font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .menu-toggle { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-main); }
+
         /* Sidebar Navigation */
-        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; }
-        .sidebar h2 { color: var(--primary); font-size: 24px; font-weight: 700; margin-bottom: 32px; letter-spacing: -0.5px; }
+        .sidebar { width: 260px; background: var(--bg-surface); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; transition: transform 0.3s ease; }
+        .sidebar-header { color: var(--primary); font-size: 24px; font-weight: 700; margin-bottom: 32px; letter-spacing: -0.5px; display: flex; justify-content: space-between; align-items: center;}
+        .close-sidebar { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+        
         .nav-item { padding: 12px 16px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--text-muted); transition: 0.2s; }
         .nav-item:hover { background: #F9FAFB; color: var(--text-main); }
         .nav-item.active { background: rgba(255, 140, 0, 0.1); color: var(--primary); font-weight: 600; }
 
         /* Layout Structure */
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
-        .tab-panel { display: none; }
+        .main-content { flex: 1; padding: 32px 40px; overflow-y: auto; width: 100%; }
+        .tab-panel { display: none; animation: fadeIn 0.3s; }
         .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
         .header { margin-bottom: 32px; }
         .header h1 { font-size: 28px; font-weight: 700; color: #111827; }
         .header p { color: var(--text-muted); margin-top: 6px; font-size: 15px; }
         
         /* Metric Overview Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 40px; }
         .stat-card { background: var(--bg-surface); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .stat-card h3 { font-size: 14px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
         .stat-card p { font-size: 32px; font-weight: 700; color: var(--text-main); }
@@ -49,44 +58,77 @@
         
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; background: #FFF; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; outline: none; background: #FFF; transition: border-color 0.2s; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(255,140,0,0.15); }
         
         /* Action Elements */
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; display: inline-block; text-align: center; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; text-align: center; }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .file-status { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-style: italic; }
+        .file-status { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-style: italic; word-break: break-all; }
 
-        /* Data Displays */
-        .table-container { background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
+        /* Data Displays - Optimized for scrolling */
+        .table-wrapper { width: 100%; overflow-x: auto; background: var(--bg-surface); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        table { width: 100%; min-width: 600px; border-collapse: collapse; text-align: left; }
         th, td { padding: 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-        th { background: #F9FAFB; font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; }
+        th { background: #F9FAFB; font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; white-space: nowrap; }
         td { font-size: 15px; color: #374151; }
         
         /* Status Badges */
-        .badge { padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .badge { padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 600; display: inline-block; white-space: nowrap; }
         .badge-pending { background: #FEF3C7; color: #92400E; }
         .badge-active { background: #D1FAE5; color: #065F46; }
         .badge-submitted { background: #DBEAFE; color: #1E40AF; }
         .badge-graded { background: #E0F2FE; color: #0369A1; }
 
-        /* Grading Action UI */
         .grade-input-box { display: flex; gap: 8px; align-items: center; }
-        .grade-input-box input { width: 80px; padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
+        .grade-input-box input { width: 70px; padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
         .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 4px; border: none; background: #E5E7EB; cursor: pointer; font-weight: 500; }
         .btn-sm-save { background: var(--primary); color: white; }
 
-        /* Notifications */
         .toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 1000; }
+
+        /* ── RESPONSIVE MEDIA QUERIES ── */
+
+        /* Tablet Optimization */
+        @media (max-width: 1024px) {
+            .grid-two-col { grid-template-columns: 1fr; gap: 24px; }
+            .main-content { padding: 24px; }
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .mobile-header { display: flex; }
+            
+            /* Hide sidebar by default, overlay when active */
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-header span { display: block; }
+            .close-sidebar { display: block; } /* Show close button on mobile */
+            
+            .main-content { padding: 16px; }
+            .header h1 { font-size: 24px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
+    <div class="mobile-header">
         <h2>Lumina LMS</h2>
+        <button class="menu-toggle" id="menu-open">☰</button>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span>Lumina LMS</span>
+            <button class="close-sidebar" id="menu-close">✕</button>
+        </div>
         <div class="nav-item active" data-target="overview">Dashboard Overview</div>
         <div class="nav-item" data-target="learners">Manage Learners</div>
         <div class="nav-item" data-target="tasks">Task Hub</div>
@@ -94,13 +136,12 @@
     </aside>
 
     <main class="main-content">
-        
         <div id="toast-notification" class="toast"></div>
 
         <section id="panel-overview" class="tab-panel active">
             <div class="header">
                 <h1>Dashboard Overview</h1>
-                <p>Real-time metrics and program metrics footprint.</p>
+                <p>Real-time metrics and program footprint.</p>
             </div>
             <div class="stats-grid">
                 <div class="stat-card"><h3>Total Learners</h3><p id="metric-learners">0</p></div>
@@ -113,7 +154,7 @@
         <section id="panel-learners" class="tab-panel">
             <div class="header">
                 <h1>Learner Management</h1>
-                <p>Pre-verify and whitelist learner records to permit portal access registration.</p>
+                <p>Pre-verify and whitelist learner records to permit portal access.</p>
             </div>
             <div class="grid-two-col">
                 <div class="card">
@@ -140,7 +181,7 @@
                     <button class="btn-primary" id="btn-whitelist">Whitelist Learner</button>
                 </div>
                 
-                <div class="table-container">
+                <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
@@ -158,17 +199,17 @@
         <section id="panel-tasks" class="tab-panel">
             <div class="header">
                 <h1>Task Hub</h1>
-                <p>Create tasks, briefs, and Portfolios of Evidence (PoE) documents via Cloudinary storage.</p>
+                <p>Create tasks and upload Portfolio of Evidence (PoE) documents.</p>
             </div>
             <div class="grid-two-col">
                 <div class="card">
-                    <h2>Publish New Assessment Task</h2>
+                    <h2>Publish New Task</h2>
                     <div class="form-group">
                         <label>Task Title</label>
                         <input type="text" id="task-title" placeholder="e.g., Formative Assessment 1">
                     </div>
                     <div class="form-group">
-                        <label>Description / Instructions</label>
+                        <label>Instructions</label>
                         <textarea id="task-desc" rows="4" placeholder="Enter task deliverables..."></textarea>
                     </div>
                     <div class="form-group">
@@ -176,20 +217,20 @@
                         <input type="date" id="task-duedate">
                     </div>
                     <div class="form-group">
-                        <label>Task Resource File Attachment</label>
+                        <label>Resource File Attachment</label>
                         <input type="file" id="task-file-input">
                         <div id="file-upload-status" class="file-status">No resource file uploaded yet.</div>
                     </div>
-                    <button class="btn-primary" id="btn-create-task">Publish Task to Portals</button>
+                    <button class="btn-primary" id="btn-create-task">Publish Task</button>
                 </div>
 
-                <div class="table-container">
+                <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>Task Details</th>
                                 <th>Due Date</th>
-                                <th>Resource Document</th>
+                                <th>Document</th>
                             </tr>
                         </thead>
                         <tbody id="table-tasks-body"></tbody>
@@ -201,17 +242,17 @@
         <section id="panel-submissions" class="tab-panel">
             <div class="header">
                 <h1>Learner Submissions</h1>
-                <p>Review uploaded evidence portfolios, grade submissions, and give assessment outcomes.</p>
+                <p>Review evidence, grade submissions, and provide outcomes.</p>
             </div>
-            <div class="table-container">
+            <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
                             <th>Learner</th>
                             <th>Task Reference</th>
-                            <th>Submitted File</th>
-                            <th>Mark/Status</th>
-                            <th>Actions</th>
+                            <th>File</th>
+                            <th>Status</th>
+                            <th>Grade</th>
                         </tr>
                     </thead>
                     <tbody id="table-submissions-body"></tbody>
@@ -225,7 +266,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Firebase Configuration Matching Your Infrastructure
         const firebaseConfig = {
             apiKey: "AIzaSyBQSPwpVbGrdCuOoyitAeWQHIeipj2MgIY",
             authDomain: "newstart-64c43.firebaseapp.com",
@@ -236,19 +276,16 @@
             appId: "1:941619830061:web:de9e0f791eb8f6eacf87a4"
         };
 
-        // Cloudinary Pipeline Configuration
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dqkujefxj/auto/upload";
         const CLOUDINARY_PRESET = "banter_box";
 
-        // Initialize Native Frameworks
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Global State Variables
         let uploadedFileUrl = "";
         let uploadedFileName = "";
 
-        /* ── SYSTEM UI NOTIFICATIONS ── */
+        // UI Notifications
         function notify(message, type = "success") {
             const toast = document.getElementById("toast-notification");
             toast.textContent = message;
@@ -257,24 +294,29 @@
             setTimeout(() => { toast.style.display = "none"; }, 4000);
         }
 
-        /* ── SPA ROUTING ARCHITECTURE ── */
+        // Mobile Menu Toggle Logic
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('menu-open').addEventListener('click', () => sidebar.classList.add('open'));
+        document.getElementById('menu-close').addEventListener('click', () => sidebar.classList.remove('open'));
+
+        // SPA Routing
         document.querySelectorAll(".nav-item").forEach(item => {
             item.addEventListener("click", () => {
                 document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
                 document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
                 
                 item.classList.add("active");
-                const targetPanel = document.getElementById(`panel-${item.dataset.target}`);
-                if (targetPanel) targetPanel.classList.add("active");
+                document.getElementById(`panel-${item.dataset.target}`).classList.add("active");
+                
+                // Close sidebar on mobile after clicking a link
+                if(window.innerWidth <= 768) sidebar.classList.remove('open');
             });
         });
 
-        /* ── ENCODE SECURE KEYS FOR REALTIME DATABASE ── */
-        function getSafeKey(email) {
-            return email.toLowerCase().replace(/\./g, ",");
-        }
+        // Key encoding for Firebase
+        function getSafeKey(email) { return email.toLowerCase().replace(/\./g, ","); }
 
-        /* ── TAB 1: REALTIME CORE ANALYTICS ENGINE ── */
+        // Analytics
         function initAnalytics() {
             onValue(ref(database, "whitelisted_learners"), (snap) => {
                 let total = 0, active = 0;
@@ -292,14 +334,12 @@
 
             onValue(ref(database, "submissions"), (snap) => {
                 let pendingCount = 0;
-                snap.forEach(child => {
-                    if(child.val().status === "submitted") pendingCount++;
-                });
+                snap.forEach(child => { if(child.val().status === "submitted") pendingCount++; });
                 document.getElementById("metric-submissions").textContent = pendingCount;
             });
         }
 
-        /* ── TAB 2: LEARNER PRE-VERIFICATION MANAGEMENT ── */
+        // Registration Submissions
         document.getElementById("btn-whitelist").addEventListener("click", async () => {
             const name = document.getElementById("learner-name").value.trim();
             const email = document.getElementById("learner-email").value.trim();
@@ -307,10 +347,7 @@
             const cohort = document.getElementById("learner-cohort").value;
             const btn = document.getElementById("btn-whitelist");
 
-            if (!name || !email || !idNo) {
-                notify("All verification fields are mandatory.", "error");
-                return;
-            }
+            if (!name || !email || !idNo) return notify("All fields are required.", "error");
 
             btn.disabled = true;
             try {
@@ -319,45 +356,37 @@
                     name, email: email.toLowerCase(), idNumber: idNo, cohort, status: "pending", role: "learner", initializedAt: Date.now()
                 });
                 notify(`Whitelisted: ${email.toLowerCase()}`);
-                document.getElementById("learner-name").value = "";
-                document.getElementById("learner-email").value = "";
-                document.getElementById("learner-id").value = "";
-            } catch (err) {
-                notify(err.message, "error");
-            } finally {
-                btn.disabled = false;
-            }
+                ["learner-name", "learner-email", "learner-id"].forEach(id => document.getElementById(id).value = "");
+            } catch (err) { notify("Error: Please check Firebase Database Rules.", "error"); } 
+            finally { btn.disabled = false; }
         });
 
-        // Sync Learner Tables Live
+        // Sync Learners Table
         onValue(ref(database, "whitelisted_learners"), (snap) => {
             const tbody = document.getElementById("table-learners-body");
             tbody.innerHTML = "";
-            if(!snap.exists()) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No whitelisted records found.</td></tr>`;
-                return;
-            }
+            if(!snap.exists()) return tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No records found.</td></tr>`;
+            
             snap.forEach(child => {
                 const data = child.val();
                 const badgeClass = data.status === "active" ? "badge-active" : "badge-pending";
-                const badgeLabel = data.status === "active" ? "Active" : "Pending Sign-Up";
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td><strong>${data.name}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.email}</span></td>
-                    <td>${data.cohort.replace(/_/g, " ")}</td>
-                    <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${data.name}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.email}</span></td>
+                        <td>${data.cohort.replace(/_/g, " ")}</td>
+                        <td><span class="badge ${badgeClass}">${data.status === "active" ? "Active" : "Pending Sign-Up"}</span></td>
+                    </tr>
                 `;
-                tbody.appendChild(row);
             });
         });
 
-        /* ── TAB 3: CLOUDINARY FILE UPLOAD MANAGEMENT AND TASK HUB ── */
+        // Cloudinary Upload
         document.getElementById("task-file-input").addEventListener("change", async (e) => {
             const file = e.target.files[0];
             const statusLabel = document.getElementById("file-upload-status");
             if (!file) return;
 
-            statusLabel.textContent = "Uploading attachment to Cloudinary network...";
+            statusLabel.textContent = "Uploading...";
             statusLabel.style.color = "var(--warning)";
 
             const formData = new FormData();
@@ -366,128 +395,100 @@
 
             try {
                 const response = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-                if (!response.ok) throw new Error("Cloudinary pipeline transmission failure.");
-                
+                if (!response.ok) throw new Error("Upload failed.");
                 const result = await response.json();
                 uploadedFileUrl = result.secure_url;
                 uploadedFileName = file.name;
                 statusLabel.textContent = `Attached: ${file.name}`;
                 statusLabel.style.color = "var(--success)";
-                notify("Document optimized and attached successfully.");
             } catch (err) {
-                statusLabel.textContent = "Upload failed. Verify Cloudinary network preset settings.";
+                statusLabel.textContent = "Upload failed.";
                 statusLabel.style.color = "#EF4444";
                 notify(err.message, "error");
             }
         });
 
+        // Task Creation
         document.getElementById("btn-create-task").addEventListener("click", async () => {
             const title = document.getElementById("task-title").value.trim();
             const description = document.getElementById("task-desc").value.trim();
             const dueDate = document.getElementById("task-duedate").value;
             const btn = document.getElementById("btn-create-task");
 
-            if (!title || !description || !dueDate) {
-                notify("Please satisfy all programmatic task requirements.", "error");
-                return;
-            }
+            if (!title || !description || !dueDate) return notify("Fill out all task details.", "error");
 
             btn.disabled = true;
             try {
-                const taskRef = ref(database, "tasks");
-                const newTaskRef = push(taskRef);
-                await set(newTaskRef, {
-                    id: newTaskRef.key, title, description, dueDate,
-                    fileUrl: uploadedFileUrl, fileName: uploadedFileName, timestamp: Date.now()
-                });
-
-                notify("Task deployment compiled out to learner portals.");
-                document.getElementById("task-title").value = "";
-                document.getElementById("task-desc").value = "";
-                document.getElementById("task-duedate").value = "";
-                document.getElementById("task-file-input").value = "";
+                const newTaskRef = push(ref(database, "tasks"));
+                await set(newTaskRef, { id: newTaskRef.key, title, description, dueDate, fileUrl: uploadedFileUrl, fileName: uploadedFileName, timestamp: Date.now() });
+                notify("Task published successfully.");
+                
+                ["task-title", "task-desc", "task-duedate", "task-file-input"].forEach(id => document.getElementById(id).value = "");
                 document.getElementById("file-upload-status").textContent = "No resource file uploaded yet.";
                 document.getElementById("file-upload-status").style.color = "var(--text-muted)";
                 uploadedFileUrl = ""; uploadedFileName = "";
-            } catch (err) {
-                notify(err.message, "error");
-            } finally {
-                btn.disabled = false;
-            }
+            } catch (err) { notify("Error: Please check Firebase Database Rules.", "error"); } 
+            finally { btn.disabled = false; }
         });
 
-        // Sync Task Hub Tables Live
+        // Sync Tasks Table
         onValue(ref(database, "tasks"), (snap) => {
             const tbody = document.getElementById("table-tasks-body");
             tbody.innerHTML = "";
-            if(!snap.exists()) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No tasks deployed yet.</td></tr>`;
-                return;
-            }
+            if(!snap.exists()) return tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No tasks deployed.</td></tr>`;
+            
             snap.forEach(child => {
                 const data = child.val();
-                const fileLink = data.fileUrl ? `<a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:500;">Download Brief</a>` : '<span style="color:var(--text-muted);">None</span>';
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.description.substring(0, 50)}...</span></td>
-                    <td>${data.dueDate}</td>
-                    <td>${fileLink}</td>
+                const fileLink = data.fileUrl ? `<a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:500;">Download</a>` : '<span style="color:var(--text-muted);">None</span>';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.description.substring(0, 40)}...</span></td>
+                        <td>${data.dueDate}</td>
+                        <td>${fileLink}</td>
+                    </tr>
                 `;
-                tbody.appendChild(row);
             });
         });
 
-        /* ── TAB 4: PORTFOLIO SUBMISSIONS & LIVE EVALUATION MATRIX ── */
+        // Sync Submissions Table
         onValue(ref(database, "submissions"), (snap) => {
             const tbody = document.getElementById("table-submissions-body");
             tbody.innerHTML = "";
-            if(!snap.exists()) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No assessment submissions received yet.</td></tr>`;
-                return;
-            }
+            if(!snap.exists()) return tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No submissions received yet.</td></tr>`;
+            
             snap.forEach(child => {
                 const submissionId = child.key;
                 const data = child.val();
                 const badgeClass = data.status === "graded" ? "badge-graded" : "badge-submitted";
-                const displayGrade = data.grade ? `${data.grade}%` : "Not Evaluated";
+                const displayGrade = data.grade ? `${data.grade}%` : "Pending";
 
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td><strong>${data.learnerName || 'Learner'}</strong><br><span style="font-size:11px;color:var(--text-muted);">${data.learnerEmail}</span></td>
-                    <td>${data.taskTitle || 'Assessment Task'}</td>
-                    <td><a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:600;">View File</a></td>
-                    <td><span class="badge ${badgeClass}">${displayGrade} (${data.status.toUpperCase()})</span></td>
-                    <td>
-                        <div class="grade-input-box">
-                            <input type="number" id="input-mark-${submissionId}" min="0" max="100" placeholder="Mark" value="${data.grade || ''}">
-                            <button class="btn-sm btn-sm-save" onclick="window.submitAssessment('${submissionId}')">Save</button>
-                        </div>
-                    </td>
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${data.learnerName || 'Learner'}</strong><br><span style="font-size:11px;color:var(--text-muted);">${data.learnerEmail}</span></td>
+                        <td>${data.taskTitle || 'Assessment Task'}</td>
+                        <td><a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:600;">View File</a></td>
+                        <td><span class="badge ${badgeClass}">${displayGrade}</span></td>
+                        <td>
+                            <div class="grade-input-box">
+                                <input type="number" id="input-mark-${submissionId}" min="0" max="100" placeholder="Mark" value="${data.grade || ''}">
+                                <button class="btn-sm btn-sm-save" onclick="window.submitAssessment('${submissionId}')">Save</button>
+                            </div>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(row);
             });
         });
 
-        // Expose Assessment Grading callback cleanly to standard window global context
         window.submitAssessment = async function(submissionId) {
             const inputMark = document.getElementById(`input-mark-${submissionId}`).value;
-            if(!inputMark || inputMark < 0 || inputMark > 100) {
-                alert("Please submit a legitimate mark validation range (0-100).");
-                return;
-            }
+            if(!inputMark || inputMark < 0 || inputMark > 100) return alert("Please submit a valid mark (0-100).");
+            
             try {
-                await update(ref(database, `submissions/${submissionId}`), {
-                    grade: parseInt(inputMark),
-                    status: "graded",
-                    evaluatedAt: Date.now()
-                });
-                alert("Assessment evaluations saved down dynamically.");
-            } catch(err) {
-                alert("Database transactional validation failure: " + err.message);
-            }
+                await update(ref(database, `submissions/${submissionId}`), { grade: parseInt(inputMark), status: "graded", evaluatedAt: Date.now() });
+                notify("Grade saved successfully!");
+            } catch(err) { notify("Error saving grade.", "error"); }
         };
 
-        // Initialize Core Metrics System Startup
         initAnalytics();
     </script>
 </body>
