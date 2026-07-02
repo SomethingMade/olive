@@ -25,6 +25,22 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-body); color: var(--text-main); overflow: hidden; height: 100vh; }
 
+        /* ── LOADING OVERLAY ── */
+        #loading-overlay {
+            position: fixed; inset: 0; background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(3px); z-index: 100000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #loading-overlay.active { opacity: 1; visibility: visible; }
+        .spinner {
+            width: 48px; height: 48px; border: 4px solid #FFF0E0;
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 16px;
+        }
+        .loading-text { font-weight: 600; color: var(--primary); letter-spacing: 0.5px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         /* ── AUTHENTICATION SCREEN ── */
         #auth-screen {
             position: fixed; inset: 0; background: linear-gradient(135deg, #FFF0E0 0%, #F3F6F8 100%);
@@ -97,7 +113,9 @@
         .stat-card p { font-size: 36px; font-weight: 700; color: var(--text-main); letter-spacing: -1px;}
 
         .grid-two-col { display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; align-items: start; }
-        .card { background: var(--bg-surface); border-radius: var(--radius-card); padding: 32px; border: 1px solid var(--border); box-shadow: var(--shadow-soft); margin-bottom: 24px; }
+        .left-col { display: flex; flex-direction: column; gap: 24px; }
+        
+        .card { background: var(--bg-surface); border-radius: var(--radius-card); padding: 32px; border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
         .card h2 { font-size: 20px; margin-bottom: 24px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
         
         .form-group { margin-bottom: 20px; }
@@ -160,6 +178,11 @@
     </style>
 </head>
 <body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Processing...</div>
+    </div>
 
     <div id="toast-notification" class="toast"></div>
 
@@ -250,31 +273,44 @@
                     <p>Whitelist, suspend, or remove learner access to the portal.</p>
                 </div>
                 <div class="grid-two-col">
-                    <div class="card">
-                        <h2>
-                            <svg style="width:20px;" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                            Whitelist Learner
-                        </h2>
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="learner-name" class="pill-input" placeholder="Jane Doe">
+                    <div class="left-col">
+                        <div class="card">
+                            <h2>
+                                <svg style="width:20px;" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                Create Cohort
+                            </h2>
+                            <div class="form-group">
+                                <label>Cohort Name</label>
+                                <input type="text" id="new-cohort-name" class="pill-input" placeholder="e.g., Data Science NQF 5">
+                            </div>
+                            <button class="btn-pill btn-outline" id="btn-add-cohort">Save Cohort</button>
                         </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="learner-email" class="pill-input" placeholder="jane@example.com">
+                        
+                        <div class="card">
+                            <h2>
+                                <svg style="width:20px;" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                                Whitelist Learner
+                            </h2>
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="learner-name" class="pill-input" placeholder="Jane Doe">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="learner-email" class="pill-input" placeholder="jane@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>ID / Passport Number</label>
+                                <input type="text" id="learner-id" class="pill-input" placeholder="Identification">
+                            </div>
+                            <div class="form-group">
+                                <label>Cohort Assignment</label>
+                                <select id="learner-cohort">
+                                    <option value="" disabled selected>Loading cohorts...</option>
+                                </select>
+                            </div>
+                            <button class="btn-pill btn-primary" id="btn-whitelist">Whitelist Learner</button>
                         </div>
-                        <div class="form-group">
-                            <label>ID / Passport Number</label>
-                            <input type="text" id="learner-id" class="pill-input" placeholder="Identification">
-                        </div>
-                        <div class="form-group">
-                            <label>Cohort Assignment</label>
-                            <select id="learner-cohort">
-                                <option value="IT_Systems_Development">Systems Development NQF 5</option>
-                                <option value="Business_Administration">Business Administration NQF 4</option>
-                            </select>
-                        </div>
-                        <button class="btn-pill btn-primary" id="btn-whitelist">Whitelist Learner</button>
                     </div>
                     
                     <div class="table-wrapper">
@@ -437,6 +473,10 @@
             setTimeout(() => { toast.style.display = "none"; }, 4000);
         }
 
+        // Overlay Spinner Helpers
+        function showLoading() { document.getElementById("loading-overlay").classList.add("active"); }
+        function hideLoading() { document.getElementById("loading-overlay").classList.remove("active"); }
+
         // SPA Navigation
         document.querySelectorAll(".nav-item").forEach(item => {
             item.addEventListener("click", () => {
@@ -482,21 +522,27 @@
             if(!email || !pass) return notify("Please enter email and password.", "error");
             
             btn.disabled = true;
+            showLoading();
             try {
                 if (isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
                 else await createUserWithEmailAndPassword(auth, email, pass);
             } catch (err) {
                 notify(err.message.replace("Firebase: ", ""), "error");
                 btn.disabled = false;
-            }
+            } finally { hideLoading(); }
         });
 
         document.getElementById('btn-google-auth').addEventListener('click', async () => {
+            showLoading();
             try { await signInWithPopup(auth, googleProvider); } 
             catch (err) { notify(err.message.replace("Firebase: ", ""), "error"); }
+            finally { hideLoading(); }
         });
 
-        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            showLoading();
+            try { await signOut(auth); } finally { hideLoading(); }
+        });
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -514,7 +560,27 @@
         /* ── DASHBOARD DATABASE LOGIC ── */
         function getSafeKey(email) { return email.toLowerCase().replace(/\./g, ","); }
 
+        // Local cohort map to render text accurately
+        const cohortMap = {};
+
         function initAnalytics() {
+            // Cohorts Observer
+            onValue(ref(database, "cohorts"), (snap) => {
+                const select = document.getElementById("learner-cohort");
+                select.innerHTML = ""; 
+                
+                if(!snap.exists()) {
+                    select.innerHTML = '<option value="" disabled selected>No Cohorts Available (Add one first)</option>';
+                    return;
+                }
+                
+                snap.forEach(child => {
+                    const data = child.val();
+                    cohortMap[data.id] = data.name;
+                    select.innerHTML += `<option value="${data.id}">${data.name}</option>`;
+                });
+            });
+
             // Learners Observer
             onValue(ref(database, "whitelisted_learners"), (snap) => {
                 let total = 0, active = 0;
@@ -539,11 +605,12 @@
                     if(data.status === "suspended") { badgeClass = "badge-suspended"; badgeText = "Suspended"; }
 
                     const suspendActionText = data.status === "suspended" ? "Unsuspend" : "Suspend";
+                    const cohortDisplay = cohortMap[data.cohort] || data.cohort || "Unassigned";
 
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${data.name}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.email}</span></td>
-                            <td>${data.cohort.replace(/_/g, " ")}</td>
+                            <td>${cohortDisplay}</td>
                             <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                             <td>
                                 <div class="action-btns">
@@ -642,15 +709,34 @@
             });
         }
 
+        /* ── ACTION HANDLERS ── */
+
+        // Add Cohort
+        document.getElementById("btn-add-cohort").addEventListener("click", async () => {
+            const name = document.getElementById("new-cohort-name").value.trim();
+            if(!name) return notify("Enter a valid cohort name.", "error");
+
+            showLoading();
+            try {
+                const newRef = push(ref(database, "cohorts"));
+                await set(newRef, { id: newRef.key, name: name, createdAt: Date.now() });
+                notify("Cohort added successfully.");
+                document.getElementById("new-cohort-name").value = "";
+            } catch (err) { notify("Error saving cohort.", "error"); }
+            finally { hideLoading(); }
+        });
+
         // Whitelist Actions
         document.getElementById("btn-whitelist").addEventListener("click", async () => {
             const name = document.getElementById("learner-name").value.trim();
             const email = document.getElementById("learner-email").value.trim();
             const idNo = document.getElementById("learner-id").value.trim();
             const cohort = document.getElementById("learner-cohort").value;
-            if (!name || !email || !idNo) return notify("All fields are required.", "error");
+            
+            if (!name || !email || !idNo || !cohort) return notify("All fields and a selected cohort are required.", "error");
 
             document.getElementById("btn-whitelist").disabled = true;
+            showLoading();
             try {
                 await set(ref(database, `whitelisted_learners/${getSafeKey(email)}`), {
                     name, email: email.toLowerCase(), idNumber: idNo, cohort, status: "pending", role: "learner", initializedAt: Date.now()
@@ -658,25 +744,29 @@
                 notify(`Whitelisted: ${email}`);
                 ["learner-name", "learner-email", "learner-id"].forEach(id => document.getElementById(id).value = "");
             } catch (err) { notify("Database Error.", "error"); } 
-            finally { document.getElementById("btn-whitelist").disabled = false; }
+            finally { document.getElementById("btn-whitelist").disabled = false; hideLoading(); }
         });
 
         // Toggle Suspend Action
         window.toggleSuspend = async function(email, currentStatus) {
             const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
+            showLoading();
             try {
                 await update(ref(database, `whitelisted_learners/${getSafeKey(email)}`), { status: newStatus });
                 notify(`Learner status changed to ${newStatus}.`);
             } catch(err) { notify("Error updating status.", "error"); }
+            finally { hideLoading(); }
         }
 
         // Remove Learner Action
         window.removeLearner = async function(email) {
             if(!confirm(`Are you sure you want to permanently remove access for ${email}?`)) return;
+            showLoading();
             try {
                 await remove(ref(database, `whitelisted_learners/${getSafeKey(email)}`));
                 notify("Learner removed successfully.");
             } catch(err) { notify("Error removing learner.", "error"); }
+            finally { hideLoading(); }
         }
 
         // File Uploading
@@ -686,6 +776,7 @@
             const statusLabel = document.getElementById("file-upload-status");
             if (!file) return;
 
+            showLoading();
             statusLabel.textContent = "Uploading...";
             statusLabel.style.color = "var(--primary)";
 
@@ -704,7 +795,7 @@
                 statusLabel.textContent = "Upload failed.";
                 statusLabel.style.color = "var(--error)";
                 notify("Upload failed.", "error");
-            }
+            } finally { hideLoading(); }
         });
 
         // Publish Task Action
@@ -716,6 +807,7 @@
             if (!title || !description || !dueDate) return notify("Fill out all task details.", "error");
 
             document.getElementById("btn-create-task").disabled = true;
+            showLoading();
             try {
                 const newTaskRef = push(ref(database, "tasks"));
                 await set(newTaskRef, { id: newTaskRef.key, facilitatorUid: auth.currentUser.uid, title, description, dueDate, fileUrl: uploadedFileUrl, fileName: uploadedFileName, timestamp: Date.now() });
@@ -726,7 +818,7 @@
                 document.getElementById("file-upload-status").style.color = "var(--text-muted)";
                 uploadedFileUrl = ""; uploadedFileName = "";
             } catch (err) { notify("Database Error.", "error"); } 
-            finally { document.getElementById("btn-create-task").disabled = false; }
+            finally { document.getElementById("btn-create-task").disabled = false; hideLoading(); }
         });
 
         // Send Notice Action
@@ -737,6 +829,7 @@
             if (!title || !message) return notify("Please enter subject and message.", "error");
 
             document.getElementById("btn-send-notice").disabled = true;
+            showLoading();
             try {
                 const newNoticeRef = push(ref(database, "notices"));
                 await set(newNoticeRef, { title, message, facilitatorUid: auth.currentUser.uid, timestamp: Date.now() });
@@ -745,7 +838,7 @@
                 document.getElementById("notice-title").value = "";
                 document.getElementById("notice-msg").value = "";
             } catch (err) { notify("Database Error.", "error"); } 
-            finally { document.getElementById("btn-send-notice").disabled = false; }
+            finally { document.getElementById("btn-send-notice").disabled = false; hideLoading(); }
         });
 
         // Submit Grade Action
@@ -753,10 +846,12 @@
             const inputMark = document.getElementById(`input-mark-${submissionId}`).value;
             if(!inputMark || inputMark < 0 || inputMark > 100) return notify("Submit a valid mark (0-100).", "error");
             
+            showLoading();
             try {
                 await update(ref(database, `submissions/${submissionId}`), { grade: parseInt(inputMark), status: "graded", evaluatedAt: Date.now() });
                 notify("Grade saved successfully!");
             } catch(err) { notify("Error saving grade.", "error"); }
+            finally { hideLoading(); }
         };
     </script>
 </body>
