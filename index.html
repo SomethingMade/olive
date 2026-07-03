@@ -41,14 +41,12 @@
         .loading-text { font-weight: 600; color: var(--primary); letter-spacing: 0.5px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* ── AUTHENTICATION SCREEN (SPLIT DESIGN) ── */
+        /* ── AUTHENTICATION SCREEN ── */
         #auth-screen {
             position: fixed; inset: 0; z-index: 9999; display: flex; background: var(--bg-body);
         }
         
-        #auth-image-side {
-            display: none; position: relative;
-        }
+        #auth-image-side { display: none; position: relative; }
         
         #auth-form-side {
             flex: 1; display: flex; align-items: center; justify-content: center;
@@ -60,6 +58,8 @@
             box-shadow: var(--shadow-soft); width: 100%; max-width: 400px; text-align: center;
         }
         
+        .bottom-sheet-handle { display: none; } /* Hidden on desktop */
+        
         .auth-card h2 { color: var(--primary); font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
         .auth-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; }
         
@@ -68,6 +68,12 @@
             font-size: 15px; outline: none; background: #F9FAFB; transition: 0.2s; margin-bottom: 16px;
         }
         .pill-input:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(255,140,0,0.15); }
+
+        .forgot-password-link {
+            text-align: right; font-size: 13px; color: var(--primary); margin-top: -10px; margin-bottom: 16px; 
+            margin-right: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .forgot-password-link:hover { text-decoration: underline; color: var(--primary-hover); }
 
         .btn-pill {
             width: 100%; padding: 14px 24px; border-radius: var(--radius-pill); font-size: 15px; font-weight: 600;
@@ -100,19 +106,40 @@
                 content: ''; position: absolute; inset: 0;
                 background: linear-gradient(to top, rgba(17, 24, 39, 0.9) 0%, rgba(17, 24, 39, 0.1) 60%);
             }
-            .auth-brand-overlay {
-                position: relative; z-index: 1; color: white;
-            }
+            .auth-brand-overlay { position: relative; z-index: 1; color: white; }
             .auth-brand-overlay h1 { font-size: 42px; font-weight: 700; margin-bottom: 12px; letter-spacing: -1px; }
             .auth-brand-overlay p { font-size: 18px; opacity: 0.9; max-width: 450px; line-height: 1.6; }
 
+            #auth-form-side { flex: 1; background: var(--bg-surface); }
+            .auth-card { box-shadow: none; background: transparent; padding: 0; max-width: 380px; }
+        }
+
+        /* Mobile specific styling for Auth Bottom Sheet */
+        @media (max-width: 899px) {
+            #auth-screen {
+                flex-direction: column; justify-content: flex-end;
+                background: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80') center/cover no-repeat;
+                position: relative;
+            }
+            #auth-screen::before {
+                content: ''; position: absolute; inset: 0;
+                background: linear-gradient(to bottom, rgba(17,24,39,0.1) 0%, rgba(17,24,39,0.7) 100%);
+                z-index: 1;
+            }
             #auth-form-side {
-                flex: 1; background: var(--bg-surface);
+                background: transparent; padding: 0; z-index: 2; flex: none; align-items: flex-end;
             }
             .auth-card {
-                box-shadow: none; background: transparent; padding: 0; max-width: 380px;
+                max-width: 100%; border-radius: 32px 32px 0 0; padding: 32px 24px 48px;
+                background: var(--bg-surface); box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+                animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .bottom-sheet-handle { 
+                display: block; width: 44px; height: 5px; background: #E5E7EB; border-radius: 10px; margin: 0 auto 24px; 
             }
         }
+        
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         /* ── DASHBOARD LAYOUT ── */
         #dashboard-screen { display: none; height: 100vh; width: 100vw; }
@@ -241,22 +268,31 @@
         
         <div id="auth-form-side">
             <div class="auth-card">
+                <div class="bottom-sheet-handle"></div>
                 <h2>Lumina LMS</h2>
                 <p id="auth-subtitle">Sign in to your Facilitator Dashboard</p>
                 
                 <input type="email" id="auth-email" class="pill-input" placeholder="Email address">
-                <input type="password" id="auth-pass" class="pill-input" placeholder="Password">
+                
+                <div id="password-container">
+                    <input type="password" id="auth-pass" class="pill-input" placeholder="Password">
+                    <div class="forgot-password-link" id="forgot-password-toggle">Forgot Password?</div>
+                </div>
                 
                 <button id="btn-email-auth" class="btn-pill btn-primary">Sign In</button>
+                <button id="btn-reset-pass" class="btn-pill btn-primary" style="display: none;">Send Reset Link</button>
                 
-                <div class="auth-divider"><span>or continue with</span></div>
-                
-                <button id="btn-google-auth" class="btn-pill btn-outline">
-                    <svg style="width:18px; height:18px; margin-right:8px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                    Google
-                </button>
+                <div id="auth-providers">
+                    <div class="auth-divider"><span>or continue with</span></div>
+                    
+                    <button id="btn-google-auth" class="btn-pill btn-outline">
+                        <svg style="width:18px; height:18px; margin-right:8px;" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Google
+                    </button>
+                </div>
                 
                 <p class="toggle-auth" id="toggle-auth-text">Need an account? <span id="toggle-auth-btn">Sign up</span></p>
+                <p class="toggle-auth" id="back-to-login-text" style="display: none;">Back to <span id="back-to-login-btn">Sign in</span></p>
             </div>
         </div>
     </div>
@@ -558,7 +594,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        // Added sendPasswordResetEmail to the imports
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, update, remove, off } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
@@ -613,7 +650,7 @@
         document.getElementById('menu-open').addEventListener('click', () => document.getElementById('sidebar').classList.add('open'));
         document.getElementById('menu-close').addEventListener('click', () => document.getElementById('sidebar').classList.remove('open'));
 
-        // Client-side table search (Manage Learners)
+        // Client-side table search
         document.getElementById('search-learners').addEventListener('keyup', function() {
             let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll('#table-learners-body tr');
@@ -624,14 +661,62 @@
         });
 
         /* ── AUTHENTICATION LOGIC ── */
-        let isLoginMode = true;
+        let authMode = "login"; // "login", "signup", or "reset"
+
+        function updateAuthUI() {
+            const subtitle = document.getElementById('auth-subtitle');
+            const btnEmailAuth = document.getElementById('btn-email-auth');
+            const btnReset = document.getElementById('btn-reset-pass');
+            const passContainer = document.getElementById('password-container');
+            const providers = document.getElementById('auth-providers');
+            const toggleText = document.getElementById('toggle-auth-text');
+            const backToLogin = document.getElementById('back-to-login-text');
+
+            if (authMode === "login") {
+                subtitle.textContent = "Sign in to your Facilitator Dashboard";
+                btnEmailAuth.textContent = "Sign In";
+                btnEmailAuth.style.display = "flex";
+                btnReset.style.display = "none";
+                passContainer.style.display = "block";
+                providers.style.display = "block";
+                toggleText.style.display = "block";
+                document.getElementById('forgot-password-toggle').style.display = "block";
+                toggleText.innerHTML = 'Need an account? <span id="toggle-auth-btn">Sign up</span>';
+                backToLogin.style.display = "none";
+            } else if (authMode === "signup") {
+                subtitle.textContent = "Create a new Facilitator account";
+                btnEmailAuth.textContent = "Create Account";
+                btnEmailAuth.style.display = "flex";
+                btnReset.style.display = "none";
+                passContainer.style.display = "block";
+                providers.style.display = "block";
+                toggleText.style.display = "block";
+                document.getElementById('forgot-password-toggle').style.display = "none";
+                toggleText.innerHTML = 'Already have an account? <span id="toggle-auth-btn">Sign in</span>';
+                backToLogin.style.display = "none";
+            } else if (authMode === "reset") {
+                subtitle.textContent = "Reset your password via email";
+                btnEmailAuth.style.display = "none";
+                btnReset.style.display = "flex";
+                passContainer.style.display = "none";
+                providers.style.display = "none";
+                toggleText.style.display = "none";
+                backToLogin.style.display = "block";
+            }
+        }
 
         document.getElementById('auth-screen').addEventListener('click', (e) => {
             if(e.target && e.target.id === 'toggle-auth-btn') {
-                isLoginMode = !isLoginMode;
-                document.getElementById('auth-subtitle').textContent = isLoginMode ? "Sign in to your Facilitator Dashboard" : "Create a new Facilitator account";
-                document.getElementById('btn-email-auth').textContent = isLoginMode ? "Sign In" : "Create Account";
-                document.getElementById('toggle-auth-text').innerHTML = isLoginMode ? 'Need an account? <span id="toggle-auth-btn">Sign up</span>' : 'Already have an account? <span id="toggle-auth-btn">Sign in</span>';
+                authMode = (authMode === "login") ? "signup" : "login";
+                updateAuthUI();
+            }
+            if(e.target && e.target.id === 'forgot-password-toggle') {
+                authMode = "reset";
+                updateAuthUI();
+            }
+            if(e.target && e.target.id === 'back-to-login-btn') {
+                authMode = "login";
+                updateAuthUI();
             }
         });
 
@@ -641,10 +726,27 @@
             if(!email || !pass) return notify("Please enter email and password.", "error");
             showLoading();
             try {
-                if (isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
+                if (authMode === "login") await signInWithEmailAndPassword(auth, email, pass);
                 else await createUserWithEmailAndPassword(auth, email, pass);
             } catch (err) { notify(err.message.replace("Firebase: ", ""), "error"); } 
             finally { hideLoading(); }
+        });
+
+        document.getElementById('btn-reset-pass').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            if(!email) return notify("Please enter your email address to reset password.", "error");
+            showLoading();
+            try {
+                await sendPasswordResetEmail(auth, email);
+                notify("Password reset email sent! Please check your inbox.");
+                authMode = "login";
+                updateAuthUI();
+                document.getElementById('auth-pass').value = '';
+            } catch (err) {
+                notify(err.message.replace("Firebase: ", ""), "error");
+            } finally {
+                hideLoading();
+            }
         });
 
         document.getElementById('btn-google-auth').addEventListener('click', async () => {
