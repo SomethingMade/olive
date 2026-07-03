@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina LMS. - Secure Facilitator Portal</title>
+    <title>Lumina LMS - Secure Facilitator Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -69,6 +69,7 @@
         
         .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border); margin-top: 12px; }
         .btn-outline:hover { background: #F9FAFB; }
+        .btn-outline.small { padding: 10px 16px; font-size: 13px; margin-top: 0; }
 
         .auth-divider { display: flex; align-items: center; text-align: center; margin: 24px 0; color: var(--text-muted); font-size: 13px; }
         .auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
@@ -123,12 +124,17 @@
         .form-group select, .form-group textarea, .form-group input { width: 100%; padding: 14px 20px; border: 1px solid var(--border); border-radius: 16px; font-size: 15px; outline: none; background: #F9FAFB; transition: 0.2s; }
         .form-group select:focus, .form-group textarea:focus, .form-group input:focus { border-color: var(--primary); background: #FFF; box-shadow: 0 0 0 3px rgba(255,140,0,0.15); }
         .file-status { font-size: 13px; color: var(--text-muted); margin-top: 8px; font-style: italic; word-break: break-all; }
+        
+        .input-row { display: flex; gap: 12px; }
+        .input-row .form-group { flex: 1; margin-bottom: 0; }
 
         /* Search Filter */
-        .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
         .search-box { position: relative; width: 100%; max-width: 300px; }
         .search-box input { width: 100%; padding: 10px 16px 10px 36px; border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: 14px; }
         .search-box svg { position: absolute; left: 12px; top: 11px; width: 16px; height: 16px; color: var(--text-muted); }
+        
+        .date-picker { padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: 14px; outline: none;}
 
         .table-wrapper { width: 100%; overflow-x: auto; background: var(--bg-surface); border-radius: var(--radius-card); border: 1px solid var(--border); box-shadow: var(--shadow-soft); padding: 24px; }
         table { width: 100%; min-width: 600px; border-collapse: collapse; text-align: left; }
@@ -143,6 +149,7 @@
         .badge-suspended { background: #FEE2E2; color: #B91C1C; }
         .badge-submitted { background: #DBEAFE; color: #1E40AF; }
         .badge-graded { background: #E0F2FE; color: #0369A1; }
+        .badge-absent { background: #FEE2E2; color: #B91C1C; }
 
         .grade-input-box { display: flex; gap: 8px; align-items: center; }
         .grade-input-box input { width: 80px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-pill); outline: none; text-align: center;}
@@ -155,6 +162,8 @@
         .btn-warning:hover { background: #FDE68A; }
         .btn-danger { background: #FEE2E2; color: #DC2626; }
         .btn-danger:hover { background: #FECACA; }
+        .btn-success { background: #D1FAE5; color: #065F46; }
+        .btn-success:hover { background: #A7F3D0; }
 
         .toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; border-radius: var(--radius-pill); color: white; font-weight: 500; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; z-index: 10000; }
 
@@ -173,6 +182,7 @@
             .close-sidebar { display: block; }
             .main-content { padding: 16px; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+            .input-row { flex-direction: column; }
         }
         @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
     </style>
@@ -188,7 +198,7 @@
 
     <div id="auth-screen">
         <div class="auth-card">
-            <h2>Lumina. LMS</h2>
+            <h2>Lumina LMS</h2>
             <p id="auth-subtitle">Sign in to your Facilitator Dashboard</p>
             
             <input type="email" id="auth-email" class="pill-input" placeholder="Email address">
@@ -230,6 +240,10 @@
             <div class="nav-item" data-target="learners">
                 <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                 Manage Learners
+            </div>
+            <div class="nav-item" data-target="register">
+                <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14l2 2 4-4"></path></svg>
+                Class Register
             </div>
             <div class="nav-item" data-target="tasks">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -330,6 +344,63 @@
                                 </tr>
                             </thead>
                             <tbody id="table-learners-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="panel-register" class="tab-panel">
+                <div class="header">
+                    <h1>Class Register</h1>
+                    <p>Configure location boundaries and monitor daily learner attendance.</p>
+                </div>
+                <div class="grid-two-col">
+                    <div class="card">
+                        <h2>
+                            <svg style="width:20px;" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            Geofence Settings
+                        </h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Set the classroom location to restrict where learners can sign the register from.</p>
+                        
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Latitude</label>
+                                <input type="number" id="loc-lat" class="pill-input" placeholder="e.g. -25.7479" step="any">
+                            </div>
+                            <div class="form-group">
+                                <label>Longitude</label>
+                                <input type="number" id="loc-lng" class="pill-input" placeholder="e.g. 28.2293" step="any">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Allowed Radius (Meters)</label>
+                            <input type="number" id="loc-radius" class="pill-input" placeholder="e.g. 50">
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <button class="btn-pill btn-outline small" id="btn-get-location" style="flex:1;">📍 Use My Device Location</button>
+                            <button class="btn-pill btn-primary small" id="btn-save-location" style="flex:1;">Save Geofence</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <div class="table-controls">
+                            <h3 style="font-size: 16px; font-weight: 600;">Daily Register</h3>
+                            <input type="date" id="register-date" class="date-picker">
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Learner</th>
+                                    <th>Check-in Time</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-register-body">
+                                <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Loading register...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -444,7 +515,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, update, remove, off } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBQSPwpVbGrdCuOoyitAeWQHIeipj2MgIY",
@@ -464,6 +535,12 @@
         const database = getDatabase(app);
         const googleProvider = new GoogleAuthProvider();
 
+        /* ── GLOBAL STATE ── */
+        window.allLearners = [];
+        window.currentAttendanceData = {};
+        window.activeAttendanceRef = null;
+        const cohortMap = {};
+
         /* ── UI HELPERS ── */
         function notify(message, type = "success") {
             const toast = document.getElementById("toast-notification");
@@ -473,9 +550,9 @@
             setTimeout(() => { toast.style.display = "none"; }, 4000);
         }
 
-        // Overlay Spinner Helpers
         function showLoading() { document.getElementById("loading-overlay").classList.add("active"); }
         function hideLoading() { document.getElementById("loading-overlay").classList.remove("active"); }
+        function getSafeKey(email) { return email.toLowerCase().replace(/\./g, ","); }
 
         // SPA Navigation
         document.querySelectorAll(".nav-item").forEach(item => {
@@ -492,7 +569,7 @@
         document.getElementById('menu-open').addEventListener('click', () => document.getElementById('sidebar').classList.add('open'));
         document.getElementById('menu-close').addEventListener('click', () => document.getElementById('sidebar').classList.remove('open'));
 
-        // Client-side table search
+        // Client-side table search (Manage Learners)
         document.getElementById('search-learners').addEventListener('keyup', function() {
             let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll('#table-learners-body tr');
@@ -517,19 +594,13 @@
         document.getElementById('btn-email-auth').addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value.trim();
             const pass = document.getElementById('auth-pass').value;
-            const btn = document.getElementById('btn-email-auth');
-            
             if(!email || !pass) return notify("Please enter email and password.", "error");
-            
-            btn.disabled = true;
             showLoading();
             try {
                 if (isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
                 else await createUserWithEmailAndPassword(auth, email, pass);
-            } catch (err) {
-                notify(err.message.replace("Firebase: ", ""), "error");
-                btn.disabled = false;
-            } finally { hideLoading(); }
+            } catch (err) { notify(err.message.replace("Firebase: ", ""), "error"); } 
+            finally { hideLoading(); }
         });
 
         document.getElementById('btn-google-auth').addEventListener('click', async () => {
@@ -553,27 +624,20 @@
             } else {
                 document.getElementById('auth-screen').style.display = 'flex';
                 document.getElementById('dashboard-screen').style.display = 'none';
-                document.getElementById('btn-email-auth').disabled = false;
             }
         });
 
         /* ── DASHBOARD DATABASE LOGIC ── */
-        function getSafeKey(email) { return email.toLowerCase().replace(/\./g, ","); }
-
-        // Local cohort map to render text accurately
-        const cohortMap = {};
 
         function initAnalytics() {
             // Cohorts Observer
             onValue(ref(database, "cohorts"), (snap) => {
                 const select = document.getElementById("learner-cohort");
                 select.innerHTML = ""; 
-                
                 if(!snap.exists()) {
-                    select.innerHTML = '<option value="" disabled selected>No Cohorts Available (Add one first)</option>';
+                    select.innerHTML = '<option value="" disabled selected>No Cohorts Available</option>';
                     return;
                 }
-                
                 snap.forEach(child => {
                     const data = child.val();
                     cohortMap[data.id] = data.name;
@@ -583,6 +647,7 @@
 
             // Learners Observer
             onValue(ref(database, "whitelisted_learners"), (snap) => {
+                window.allLearners = [];
                 let total = 0, active = 0;
                 const tbody = document.getElementById("table-learners-body");
                 tbody.innerHTML = "";
@@ -591,19 +656,18 @@
                     document.getElementById("metric-learners").textContent = 0;
                     document.getElementById("metric-active").textContent = 0;
                     tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No records found.</td></tr>`;
+                    renderRegisterUI(); // Refresh register table
                     return;
                 }
 
                 snap.forEach(child => {
                     const data = child.val();
+                    window.allLearners.push({ key: child.key, ...data });
                     total++;
                     if(data.status === "active") active++;
                     
-                    let badgeClass = "badge-pending";
-                    let badgeText = "Pending Sign-Up";
-                    if(data.status === "active") { badgeClass = "badge-active"; badgeText = "Active"; }
-                    if(data.status === "suspended") { badgeClass = "badge-suspended"; badgeText = "Suspended"; }
-
+                    let badgeClass = data.status === "active" ? "badge-active" : (data.status === "suspended" ? "badge-suspended" : "badge-pending");
+                    let badgeText = data.status === "active" ? "Active" : (data.status === "suspended" ? "Suspended" : "Pending");
                     const suspendActionText = data.status === "suspended" ? "Unsuspend" : "Suspend";
                     const cohortDisplay = cohortMap[data.cohort] || data.cohort || "Unassigned";
 
@@ -628,11 +692,26 @@
                 });
                 document.getElementById("metric-learners").textContent = total;
                 document.getElementById("metric-active").textContent = active;
-                // re-trigger search to filter new DOM
                 document.getElementById('search-learners').dispatchEvent(new Event('keyup'));
+                renderRegisterUI(); // Refresh register to reflect latest learners
             });
 
-            // Tasks Observer
+            // Set up default date and initiate attendance fetch
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('register-date').value = today;
+            fetchDailyAttendance(today);
+
+            // Geofence settings fetch
+            onValue(ref(database, "settings/geofence"), (snap) => {
+                if(snap.exists()) {
+                    const data = snap.val();
+                    document.getElementById('loc-lat').value = data.lat || '';
+                    document.getElementById('loc-lng').value = data.lng || '';
+                    document.getElementById('loc-radius').value = data.radius || 50;
+                }
+            });
+
+            // Tasks, Submissions, Notices remain similar
             onValue(ref(database, "tasks"), (snap) => {
                 document.getElementById("metric-tasks").textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
                 const tbody = document.getElementById("table-tasks-body");
@@ -641,81 +720,174 @@
                 
                 snap.forEach(child => {
                     const data = child.val();
-                    const fileLink = data.fileUrl ? `<a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:600;">Download</a>` : '<span style="color:var(--text-muted);">None</span>';
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.description.substring(0, 40)}...</span></td>
-                            <td>${data.dueDate}</td>
-                            <td>${fileLink}</td>
-                        </tr>
-                    `;
+                    const fileLink = data.fileUrl ? `<a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:600;">Download</a>` : 'None';
+                    tbody.innerHTML += `<tr><td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.description.substring(0, 40)}...</span></td><td>${data.dueDate}</td><td>${fileLink}</td></tr>`;
                 });
             });
 
-            // Submissions Observer
             onValue(ref(database, "submissions"), (snap) => {
                 let pendingCount = 0;
                 const tbody = document.getElementById("table-submissions-body");
                 tbody.innerHTML = "";
                 if(!snap.exists()) {
                     document.getElementById("metric-submissions").textContent = 0;
-                    return tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No submissions received yet.</td></tr>`;
+                    return tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No submissions.</td></tr>`;
                 }
 
                 snap.forEach(child => {
-                    const submissionId = child.key;
                     const data = child.val();
                     if(data.status === "submitted") pendingCount++;
-                    
                     const badgeClass = data.status === "graded" ? "badge-graded" : "badge-submitted";
                     const displayGrade = data.grade ? `${data.grade}%` : "Pending";
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><strong>${data.learnerName || 'Learner'}</strong><br><span style="font-size:11px;color:var(--text-muted);">${data.learnerEmail}</span></td>
-                            <td>${data.taskTitle || 'Assessment Task'}</td>
-                            <td><a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:600;">View File</a></td>
-                            <td><span class="badge ${badgeClass}">${displayGrade}</span></td>
-                            <td>
-                                <div class="grade-input-box">
-                                    <input type="number" id="input-mark-${submissionId}" min="0" max="100" placeholder="Mark" value="${data.grade || ''}">
-                                    <button class="btn-pill btn-primary" style="padding: 10px 16px; font-size:13px;" onclick="window.submitAssessment('${submissionId}')">Save</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                    tbody.innerHTML += `<tr><td><strong>${data.learnerName || 'Learner'}</strong><br><span style="font-size:11px;color:var(--text-muted);">${data.learnerEmail}</span></td><td>${data.taskTitle || 'Task'}</td><td><a href="${data.fileUrl}" target="_blank" style="color:var(--primary); font-weight:600;">View File</a></td><td><span class="badge ${badgeClass}">${displayGrade}</span></td><td><div class="grade-input-box"><input type="number" id="input-mark-${child.key}" min="0" max="100" placeholder="Mark" value="${data.grade || ''}"><button class="btn-pill btn-primary" style="padding: 10px 16px; font-size:13px;" onclick="window.submitAssessment('${child.key}')">Save</button></div></td></tr>`;
                 });
                 document.getElementById("metric-submissions").textContent = pendingCount;
             });
 
-            // Notices Observer
             onValue(ref(database, "notices"), (snap) => {
                 const tbody = document.getElementById("table-notices-body");
                 tbody.innerHTML = "";
-                if(!snap.exists()) return tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color: var(--text-muted);">No notices broadcasted yet.</td></tr>`;
-                
-                // Reverse array to show newest first
-                const notices = [];
-                snap.forEach(child => { notices.push(child.val()); });
+                if(!snap.exists()) return tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color: var(--text-muted);">No notices yet.</td></tr>`;
+                const notices = []; snap.forEach(c => notices.push(c.val()));
                 notices.reverse().forEach(data => {
-                    const dateObj = new Date(data.timestamp);
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.message.substring(0, 50)}...</span></td>
-                            <td>${dateObj.toLocaleDateString()}</td>
-                        </tr>
-                    `;
+                    tbody.innerHTML += `<tr><td><strong>${data.title}</strong><br><span style="font-size:12px;color:var(--text-muted);">${data.message.substring(0, 50)}...</span></td><td>${new Date(data.timestamp).toLocaleDateString()}</td></tr>`;
                 });
             });
         }
 
-        /* ── ACTION HANDLERS ── */
+        /* ── REGISTER & ATTENDANCE ── */
+        
+        // Listen to Date Picker change
+        document.getElementById('register-date').addEventListener('change', (e) => {
+            fetchDailyAttendance(e.target.value);
+        });
+
+        function fetchDailyAttendance(dateStr) {
+            if(window.activeAttendanceRef) off(window.activeAttendanceRef);
+            
+            const dbRef = ref(database, `attendance/${dateStr}`);
+            window.activeAttendanceRef = dbRef;
+            
+            onValue(dbRef, (snap) => {
+                window.currentAttendanceData = snap.exists() ? snap.val() : {};
+                renderRegisterUI();
+            });
+        }
+
+        function renderRegisterUI() {
+            const tbody = document.getElementById("table-register-body");
+            tbody.innerHTML = "";
+            
+            if(window.allLearners.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No whitelisted learners to track.</td></tr>`;
+                return;
+            }
+
+            // Only show active learners in the register
+            const activeLearners = window.allLearners.filter(l => l.status === "active");
+
+            activeLearners.forEach(learner => {
+                const safeKey = learner.key;
+                const attendanceRecord = window.currentAttendanceData[safeKey];
+                
+                let isPresent = !!attendanceRecord;
+                let checkInTime = "—";
+                let statusBadge = `<span class="badge badge-absent">Absent</span>`;
+                let actionBtn = `<button class="btn-action btn-success" onclick="window.markPresentManual('${safeKey}', '${learner.name}')">Mark Present</button>`;
+
+                if(isPresent) {
+                    const timeObj = new Date(attendanceRecord.timestamp);
+                    checkInTime = timeObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const isManual = attendanceRecord.method === 'manual';
+                    const manualTag = isManual ? ' (Manual)' : '';
+                    statusBadge = `<span class="badge badge-active">Present${manualTag}</span>`;
+                    actionBtn = `<button class="btn-action btn-danger" onclick="window.markAbsentManual('${safeKey}')">Revoke</button>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${learner.name}</strong><br><span style="font-size:12px;color:var(--text-muted);">${learner.email}</span></td>
+                        <td>${checkInTime}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Manual Attendance Overrides
+        window.markPresentManual = async function(learnerSafeKey, learnerName) {
+            const dateStr = document.getElementById('register-date').value;
+            if(!dateStr) return;
+            showLoading();
+            try {
+                await set(ref(database, `attendance/${dateStr}/${learnerSafeKey}`), {
+                    name: learnerName,
+                    method: 'manual',
+                    timestamp: Date.now(),
+                    facilitatorUid: auth.currentUser.uid
+                });
+                notify(`${learnerName} marked as present.`);
+            } catch(e) { notify("Database error", "error"); }
+            finally { hideLoading(); }
+        };
+
+        window.markAbsentManual = async function(learnerSafeKey) {
+            const dateStr = document.getElementById('register-date').value;
+            if(!dateStr) return;
+            showLoading();
+            try {
+                await remove(ref(database, `attendance/${dateStr}/${learnerSafeKey}`));
+                notify(`Attendance record removed.`);
+            } catch(e) { notify("Database error", "error"); }
+            finally { hideLoading(); }
+        };
+
+        // Geofence Configuration
+        document.getElementById("btn-get-location").addEventListener("click", () => {
+            if (navigator.geolocation) {
+                showLoading();
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        document.getElementById('loc-lat').value = position.coords.latitude;
+                        document.getElementById('loc-lng').value = position.coords.longitude;
+                        hideLoading();
+                        notify("Device location captured!");
+                    },
+                    (error) => {
+                        hideLoading();
+                        notify("Location error: " + error.message, "error");
+                    }
+                );
+            } else {
+                notify("Geolocation not supported by this browser.", "error");
+            }
+        });
+
+        document.getElementById("btn-save-location").addEventListener("click", async () => {
+            const lat = parseFloat(document.getElementById('loc-lat').value);
+            const lng = parseFloat(document.getElementById('loc-lng').value);
+            const radius = parseFloat(document.getElementById('loc-radius').value);
+
+            if(isNaN(lat) || isNaN(lng) || isNaN(radius)) {
+                return notify("Please enter valid numbers for Lat, Lng, and Radius.", "error");
+            }
+
+            showLoading();
+            try {
+                await set(ref(database, "settings/geofence"), { lat, lng, radius, updatedAt: Date.now() });
+                notify("Geofence settings updated globally.");
+            } catch (err) { notify("Error saving settings.", "error"); }
+            finally { hideLoading(); }
+        });
+
+
+        /* ── OTHER ACTION HANDLERS ── */
 
         // Add Cohort
         document.getElementById("btn-add-cohort").addEventListener("click", async () => {
             const name = document.getElementById("new-cohort-name").value.trim();
             if(!name) return notify("Enter a valid cohort name.", "error");
-
             showLoading();
             try {
                 const newRef = push(ref(database, "cohorts"));
@@ -726,7 +898,7 @@
             finally { hideLoading(); }
         });
 
-        // Whitelist Actions
+        // Whitelist Learner
         document.getElementById("btn-whitelist").addEventListener("click", async () => {
             const name = document.getElementById("learner-name").value.trim();
             const email = document.getElementById("learner-email").value.trim();
@@ -734,8 +906,6 @@
             const cohort = document.getElementById("learner-cohort").value;
             
             if (!name || !email || !idNo || !cohort) return notify("All fields and a selected cohort are required.", "error");
-
-            document.getElementById("btn-whitelist").disabled = true;
             showLoading();
             try {
                 await set(ref(database, `whitelisted_learners/${getSafeKey(email)}`), {
@@ -744,10 +914,10 @@
                 notify(`Whitelisted: ${email}`);
                 ["learner-name", "learner-email", "learner-id"].forEach(id => document.getElementById(id).value = "");
             } catch (err) { notify("Database Error.", "error"); } 
-            finally { document.getElementById("btn-whitelist").disabled = false; hideLoading(); }
+            finally { hideLoading(); }
         });
 
-        // Toggle Suspend Action
+        // Suspend/Remove
         window.toggleSuspend = async function(email, currentStatus) {
             const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
             showLoading();
@@ -757,8 +927,6 @@
             } catch(err) { notify("Error updating status.", "error"); }
             finally { hideLoading(); }
         }
-
-        // Remove Learner Action
         window.removeLearner = async function(email) {
             if(!confirm(`Are you sure you want to permanently remove access for ${email}?`)) return;
             showLoading();
@@ -769,83 +937,46 @@
             finally { hideLoading(); }
         }
 
-        // File Uploading
+        // Tasks & Submissions
         let uploadedFileUrl = "", uploadedFileName = "";
         document.getElementById("task-file-input").addEventListener("change", async (e) => {
             const file = e.target.files[0];
             const statusLabel = document.getElementById("file-upload-status");
             if (!file) return;
-
             showLoading();
             statusLabel.textContent = "Uploading...";
             statusLabel.style.color = "var(--primary)";
-
             const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", CLOUDINARY_PRESET);
-
+            formData.append("file", file); formData.append("upload_preset", CLOUDINARY_PRESET);
             try {
-                const response = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
-                const result = await response.json();
-                uploadedFileUrl = result.secure_url;
-                uploadedFileName = file.name;
-                statusLabel.textContent = `Attached: ${file.name}`;
-                statusLabel.style.color = "var(--success)";
-            } catch (err) {
-                statusLabel.textContent = "Upload failed.";
-                statusLabel.style.color = "var(--error)";
-                notify("Upload failed.", "error");
-            } finally { hideLoading(); }
+                const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+                const result = await res.json();
+                uploadedFileUrl = result.secure_url; uploadedFileName = file.name;
+                statusLabel.textContent = `Attached: ${file.name}`; statusLabel.style.color = "var(--success)";
+            } catch (err) { statusLabel.textContent = "Upload failed."; statusLabel.style.color = "var(--error)"; notify("Upload failed.", "error"); } 
+            finally { hideLoading(); }
         });
 
-        // Publish Task Action
         document.getElementById("btn-create-task").addEventListener("click", async () => {
             const title = document.getElementById("task-title").value.trim();
             const description = document.getElementById("task-desc").value.trim();
             const dueDate = document.getElementById("task-duedate").value;
-
             if (!title || !description || !dueDate) return notify("Fill out all task details.", "error");
-
-            document.getElementById("btn-create-task").disabled = true;
             showLoading();
             try {
                 const newTaskRef = push(ref(database, "tasks"));
                 await set(newTaskRef, { id: newTaskRef.key, facilitatorUid: auth.currentUser.uid, title, description, dueDate, fileUrl: uploadedFileUrl, fileName: uploadedFileName, timestamp: Date.now() });
                 notify("Task published successfully.");
-                
                 ["task-title", "task-desc", "task-duedate", "task-file-input"].forEach(id => document.getElementById(id).value = "");
-                document.getElementById("file-upload-status").textContent = "No file uploaded yet.";
-                document.getElementById("file-upload-status").style.color = "var(--text-muted)";
+                document.getElementById("file-upload-status").textContent = "No file uploaded yet."; document.getElementById("file-upload-status").style.color = "var(--text-muted)";
                 uploadedFileUrl = ""; uploadedFileName = "";
             } catch (err) { notify("Database Error.", "error"); } 
-            finally { document.getElementById("btn-create-task").disabled = false; hideLoading(); }
+            finally { hideLoading(); }
         });
 
-        // Send Notice Action
-        document.getElementById("btn-send-notice").addEventListener("click", async () => {
-            const title = document.getElementById("notice-title").value.trim();
-            const message = document.getElementById("notice-msg").value.trim();
-
-            if (!title || !message) return notify("Please enter subject and message.", "error");
-
-            document.getElementById("btn-send-notice").disabled = true;
-            showLoading();
-            try {
-                const newNoticeRef = push(ref(database, "notices"));
-                await set(newNoticeRef, { title, message, facilitatorUid: auth.currentUser.uid, timestamp: Date.now() });
-                notify("Notice broadcasted to all learners.");
-                
-                document.getElementById("notice-title").value = "";
-                document.getElementById("notice-msg").value = "";
-            } catch (err) { notify("Database Error.", "error"); } 
-            finally { document.getElementById("btn-send-notice").disabled = false; hideLoading(); }
-        });
-
-        // Submit Grade Action
         window.submitAssessment = async function(submissionId) {
             const inputMark = document.getElementById(`input-mark-${submissionId}`).value;
             if(!inputMark || inputMark < 0 || inputMark > 100) return notify("Submit a valid mark (0-100).", "error");
-            
             showLoading();
             try {
                 await update(ref(database, `submissions/${submissionId}`), { grade: parseInt(inputMark), status: "graded", evaluatedAt: Date.now() });
@@ -853,6 +984,21 @@
             } catch(err) { notify("Error saving grade.", "error"); }
             finally { hideLoading(); }
         };
+
+        document.getElementById("btn-send-notice").addEventListener("click", async () => {
+            const title = document.getElementById("notice-title").value.trim();
+            const message = document.getElementById("notice-msg").value.trim();
+            if (!title || !message) return notify("Please enter subject and message.", "error");
+            showLoading();
+            try {
+                const newNoticeRef = push(ref(database, "notices"));
+                await set(newNoticeRef, { title, message, facilitatorUid: auth.currentUser.uid, timestamp: Date.now() });
+                notify("Notice broadcasted to all learners.");
+                document.getElementById("notice-title").value = ""; document.getElementById("notice-msg").value = "";
+            } catch (err) { notify("Database Error.", "error"); } 
+            finally { hideLoading(); }
+        });
+
     </script>
 </body>
 </html>
