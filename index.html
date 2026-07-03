@@ -230,23 +230,56 @@
         .toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; border-radius: var(--radius-pill); color: white; font-weight: 500; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; z-index: 10000; }
 
         /* ── RESPONSIVE DESIGN ── */
-        @media (max-width: 1024px) {
-            .grid-two-col { grid-template-columns: 1fr; gap: 24px; }
-            .main-content { padding: 24px; }
-        }
 
-        @media (max-width: 768px) {
+        /* Tablets & small laptops (1025px and below): sidebar becomes a
+           slide-out drawer, cards/tables tighten up, touch targets grow. */
+        @media (max-width: 1024px) {
             #dashboard-screen { flex-direction: column; }
             .mobile-header { display: flex; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); box-shadow: 4px 0 25px rgba(0,0,0,0.15); }
+            .sidebar {
+                position: fixed; top: 0; left: 0; height: 100%; width: 280px; max-width: 80vw;
+                transform: translateX(-100%); box-shadow: 4px 0 25px rgba(0,0,0,0.15);
+            }
             .sidebar.open { transform: translateX(0); }
             .sidebar-header span { display: block; }
             .close-sidebar { display: block; }
+            .nav-item { padding: 16px 20px; } /* larger touch target */
+
+            .grid-two-col { grid-template-columns: 1fr; gap: 20px; }
+            .main-content { padding: 24px; }
+
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+            .stat-card { padding: 20px; }
+            .stat-card p { font-size: 30px; }
+
+            .card { padding: 24px; }
+            .table-wrapper { padding: 18px; }
+
+            th, td { padding: 12px 14px; font-size: 14px; }
+            .action-btns { flex-wrap: wrap; }
+            .btn-action { padding: 8px 12px; min-height: 34px; }
+            .grade-input-box { flex-wrap: wrap; }
+
+            .table-controls { gap: 10px; }
+            .search-box { max-width: 260px; }
+        }
+
+        /* Large phones / portrait tablets under ~900px */
+        @media (max-width: 899px) and (min-width: 769px) {
+            .input-row { gap: 10px; }
+        }
+
+        @media (max-width: 768px) {
             .main-content { padding: 16px; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
-            .input-row { flex-direction: column; }
+            .input-row { flex-direction: column; gap: 0; }
+            .table-controls { flex-direction: column; align-items: stretch; }
+            .search-box { max-width: 100%; }
         }
-        @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .action-btns { flex-direction: column; align-items: stretch; }
+        }
     </style>
 </head>
 <body>
@@ -642,7 +675,7 @@
                 document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
                 item.classList.add("active");
                 document.getElementById(`panel-${item.dataset.target}`).classList.add("active");
-                if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+                if(window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
             });
         });
 
